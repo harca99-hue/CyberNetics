@@ -27,9 +27,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<'qr' | 'flyer'>('qr');
   const flyerRef = useRef<HTMLDivElement>(null);
 
-  // Normalize official website URL requested by administrator (resolving https://cybernetics.vercel.app)
+  // Normalize official website URL requested by administrator (resolving https://cybernetics-club.vercel.app)
   const resolveWebsiteUrl = (url?: string): string => {
-    if (!url) return 'https://cybernetics.vercel.app';
+    if (!url) return 'https://cybernetics-club.vercel.app';
     let clean = url.trim();
     if (clean.startsWith('https;//')) {
       clean = clean.replace('https;//', 'https://');
@@ -41,8 +41,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
     } else if (clean.startsWith('http//')) {
       clean = clean.replace('http//', 'http://');
     }
-    if (clean.includes('cybernetics.com') || clean.includes('cybernetics.net') || clean.includes('cybernetics.vercel.app')) {
-      return 'https://cybernetics.vercel.app';
+    if (clean.includes('cybernetics.com') || clean.includes('cybernetics.net') || clean.includes('cybernetics.vercel.app') || clean.includes('cybernetics-club.vercel.app')) {
+      return 'https://cybernetics-club.vercel.app';
     }
     if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
       clean = `https://${clean}`;

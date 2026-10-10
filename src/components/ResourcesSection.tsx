@@ -111,7 +111,7 @@ export const ResourcesSection: React.FC = () => {
                 </div>
 
                 <a
-                  href="https://cybernetics.vercel.app"
+                  href="https://cybernetics-club.vercel.app"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 rounded-lg bg-cyan-950 text-cyan-300 hover:bg-cyan-900 border border-cyan-800/60 text-xs transition-colors shrink-0 ml-2"

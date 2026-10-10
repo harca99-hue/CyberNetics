@@ -74,9 +74,9 @@ interface ClubDataContextType {
 
 const ClubDataContext = createContext<ClubDataContextType | null>(null);
 
-// Helper to ensure clean valid website url (defaults to https://cybernetics.vercel.app)
+// Helper to ensure clean valid website url (defaults to https://cybernetics-club.vercel.app)
 const cleanWebsiteUrl = (url?: string): string => {
-  if (!url) return 'https://cybernetics.vercel.app';
+  if (!url) return 'https://cybernetics-club.vercel.app';
   let clean = url.trim();
   // Fix semicolon typo like https;// or http;//
   if (clean.startsWith('https;//')) {
@@ -89,8 +89,8 @@ const cleanWebsiteUrl = (url?: string): string => {
   } else if (clean.startsWith('http//')) {
     clean = clean.replace('http//', 'http://');
   }
-  if (clean.includes('cybernetics.com') || clean.includes('cybernetics.net') || clean.includes('cybernetics.vercel.app')) {
-    return 'https://cybernetics.vercel.app';
+  if (clean.includes('cybernetics.com') || clean.includes('cybernetics.net') || clean.includes('cybernetics.vercel.app') || clean.includes('cybernetics-club.vercel.app')) {
+    return 'https://cybernetics-club.vercel.app';
   }
   if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
     clean = `https://${clean}`;
@@ -100,14 +100,14 @@ const cleanWebsiteUrl = (url?: string): string => {
 
 // Helper to ensure clean valid resource item URL
 const cleanResourceUrl = (url?: string): string => {
-  if (!url || url === '#') return 'https://cybernetics.vercel.app';
+  if (!url || url === '#') return 'https://cybernetics-club.vercel.app';
   let clean = url.trim();
   if (clean.startsWith('https//')) clean = clean.replace('https//', 'https://');
   if (clean.startsWith('http//')) clean = clean.replace('http//', 'http://');
   if (clean.startsWith('https;//')) clean = clean.replace('https;//', 'https://');
   if (clean.startsWith('http;//')) clean = clean.replace('http;//', 'http://');
-  if (clean.includes('cybernetics.com') || clean.includes('cybernetics.net') || clean.includes('cybernetics.vercel.app')) {
-    return 'https://cybernetics.vercel.app';
+  if (clean.includes('cybernetics.com') || clean.includes('cybernetics.net') || clean.includes('cybernetics.vercel.app') || clean.includes('cybernetics-club.vercel.app')) {
+    return 'https://cybernetics-club.vercel.app';
   }
   if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
     clean = `https://${clean}`;

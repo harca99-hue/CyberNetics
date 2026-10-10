@@ -167,8 +167,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShare, onOpenAdmin }) => {
         </div>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-slate-400 text-[11px] font-mono">
-          <div>© {new Date().getFullYear()} {clubSettings.name} (<a href="https://cybernetics.vercel.app" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">https://cybernetics.vercel.app</a>). Department of Computer Science &amp; Engineering.</div>
-          <div className="text-slate-400">Official Portal: <a href="https://cybernetics.vercel.app" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">https://cybernetics.vercel.app</a> • Google Cloud Firestore Sync</div>
+          <div>© {new Date().getFullYear()} {clubSettings.name} (<a href="https://cybernetics-club.vercel.app" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">https://cybernetics-club.vercel.app</a>). Department of Computer Science &amp; Engineering.</div>
+          <div className="text-slate-400">Official Portal: <a href="https://cybernetics-club.vercel.app" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">https://cybernetics-club.vercel.app</a> • Google Cloud Firestore Sync</div>
         </div>
       </div>
     </footer>

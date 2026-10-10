@@ -6,7 +6,7 @@ export const CLUB_INFO = {
   established: '2021',
   tagline: 'Defending Florida Systems. Uncovering Exploits. Shaping Cyber Leaders.',
   regularMeeting: 'Every other Friday from 1:00 PM to 3:00 PM — Building 13 Room 105',
-  websiteUrl: 'https://cybernetics.vercel.app',
+  websiteUrl: 'https://cybernetics-club.vercel.app',
   discordInvite: 'https://discord.gg/cybernetics-college',
   githubUrl: 'https://github.com/cybernetics-club',
   ctftimeUrl: 'https://ctftime.org/team/182490',
@@ -381,7 +381,7 @@ export const CURATED_RESOURCES: ResourceItem[] = [
     title: 'Cyber Netics 4-Year Career & Cert Roadmap',
     category: 'Roadmap',
     description: 'Our curated guide on when to take Security+, eJPT, OSCP, and how to format a resume for defense contractor internships.',
-    url: 'https://cybernetics.vercel.app',
+    url: 'https://cybernetics-club.vercel.app',
     tags: ['Career', 'Certifications', 'Resume'],
     recommendedFor: 'All collegiate members'
   }

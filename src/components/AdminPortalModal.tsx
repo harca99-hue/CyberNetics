@@ -182,7 +182,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const firebaseConsoleUrl = 'https://console.firebase.google.com/project/sonic-keyword-xggh3/firestore';
   const publicRunAppUrl = clubSettings.websiteUrl?.startsWith('http://') || clubSettings.websiteUrl?.startsWith('https://')
     ? clubSettings.websiteUrl
-    : (clubSettings.websiteUrl ? `https://${clubSettings.websiteUrl}` : 'https://cybernetics.vercel.app');
+    : (clubSettings.websiteUrl ? `https://${clubSettings.websiteUrl}` : 'https://cybernetics-club.vercel.app');
 
   return (
     <div 
@@ -516,8 +516,8 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <label className="block text-xs font-mono uppercase text-cyan-400 mb-1">Official Website URL</label>
                       <input
                         type="url"
-                        placeholder="https://cybernetics.vercel.app"
-                        value={settingsForm.websiteUrl || 'https://cybernetics.vercel.app'}
+                        placeholder="https://cybernetics-club.vercel.app"
+                        value={settingsForm.websiteUrl || 'https://cybernetics-club.vercel.app'}
                         onChange={(e) => setSettingsForm({ ...settingsForm, websiteUrl: e.target.value })}
                         className="w-full px-3 py-2 bg-[#070b14] border border-cyan-500/40 rounded-lg text-sm text-cyan-200 focus:border-cyan-400 focus:outline-none"
                       />

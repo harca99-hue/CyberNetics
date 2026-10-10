@@ -22,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { clubSettings, isEditor, isAdmin } = useClubData();
 
-  const officialWebsiteUrl = 'https://cybernetics.vercel.app';
+  const officialWebsiteUrl = 'https://cybernetics-club.vercel.app';
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -73,10 +73,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/90 hover:bg-cyan-900/90 text-cyan-300 hover:text-white border border-cyan-500/60 hover:border-cyan-400 text-[11px] font-semibold transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.45)] group shrink-0"
-            title="Open official club website at https://cybernetics.vercel.app (opens in new tab)"
+            title="Open official club website at https://cybernetics-club.vercel.app (opens in new tab)"
           >
             <Globe className="w-3.5 h-3.5 text-cyan-400 group-hover:rotate-12 transition-transform" />
-            <span className="font-bold tracking-tight">https://cybernetics.vercel.app</span>
+            <span className="font-bold tracking-tight">https://cybernetics-club.vercel.app</span>
             <ExternalLink className="w-3 h-3 text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </a>
         </div>
@@ -172,10 +172,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-mono text-cyan-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/60 hover:border-cyan-500 rounded-lg transition-all whitespace-nowrap shrink-0 group"
-              title="Visit official website: https://cybernetics.vercel.app (opens in new tab)"
+              title="Visit official website: https://cybernetics-club.vercel.app (opens in new tab)"
             >
               <Globe className="w-3.5 h-3.5 text-cyan-400 group-hover:rotate-12 transition-transform shrink-0" />
-              <span>cybernetics.vercel.app</span>
+              <span>cybernetics-club.vercel.app</span>
               <ExternalLink className="w-3 h-3 text-cyan-400/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
             </a>
 
@@ -207,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 h-8 w-8 flex items-center justify-center text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 rounded-lg shrink-0"
-                title="Open official website (https://cybernetics.vercel.app)"
+                title="Open official website (https://cybernetics-club.vercel.app)"
               >
                 <Globe className="w-4 h-4 shrink-0" />
               </a>
@@ -245,7 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="font-bold">Official Club Website</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-cyan-300 font-mono">
-              <span>https://cybernetics.vercel.app</span>
+              <span>https://cybernetics-club.vercel.app</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </div>
           </a>
