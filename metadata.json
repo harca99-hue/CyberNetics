@@ -1,0 +1,8 @@
+{
+  "name": "Cyber Netics",
+  "description": "The official collegiate cybersecurity organization: fostering offensive security, defense, CTF competitions, hands-on lab workshops, and industry networking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

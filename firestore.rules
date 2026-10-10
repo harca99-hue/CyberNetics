@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'balorclub29@gmail.com' ||
+        (request.auth.token.email != null && request.auth.token.email == 'balorclub29@gmail.com')
+      );
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        isSuperAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'admin')
+      );
+    }
+
+    function isEditor() {
+      return isAuthenticated() && (
+        isAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role in ['admin', 'editor'])
+      );
+    }
+
+    // User profiles & member role registry
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Public club information: anyone can read; editors & admins can modify
+    match /club_settings/{settingId} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /resources/{resourceId} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /team_members/{memberId} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    // Cadet recruitment applications
+    match /recruits/{recruitId} {
+      // Prospective members can submit their application
+      allow create: if true;
+      // Only club leadership and editors can review applications
+      allow read, update, delete: if isEditor();
+    }
+  }
+}

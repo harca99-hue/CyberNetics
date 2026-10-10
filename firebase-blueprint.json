@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "type": "object",
+      "description": "User profile with role-based access information",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "editor", "member"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "ClubSettings": {
+      "title": "ClubSettings",
+      "type": "object",
+      "description": "Global customizable club configuration and announcements",
+      "properties": {
+        "clubName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "announcement": { "type": "string" },
+        "meetingTime": { "type": "string" },
+        "meetingLocation": { "type": "string" },
+        "discordUrl": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "updatedBy": { "type": "string" }
+      },
+      "required": ["clubName"]
+    },
+    "ClubEvent": {
+      "title": "ClubEvent",
+      "type": "object",
+      "description": "Workshops, CTF sessions, guest talks, and security operations",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "location": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "rsvpCount": { "type": "number" },
+        "isFlagged": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "date", "time", "location", "category"]
+    },
+    "ResourceItem": {
+      "title": "ResourceItem",
+      "type": "object",
+      "description": "Curated security toolkits, cheat sheets, and wargame links",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": "string" },
+        "difficulty": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "category", "url"]
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "type": "object",
+      "description": "Executive board members and track leads",
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "handle": { "type": "string" },
+        "track": { "type": "string" },
+        "bio": { "type": "string" },
+        "certs": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["name", "role", "track"]
+    },
+    "RecruitApplication": {
+      "title": "RecruitApplication",
+      "type": "object",
+      "description": "Student cadet registration applications",
+      "properties": {
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "major": { "type": "string" },
+        "trackInterest": { "type": "string" },
+        "experience": { "type": "string" },
+        "flagSolved": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "reviewed"] },
+        "submittedAt": { "type": "string" }
+      },
+      "required": ["fullName", "email", "trackInterest"]
+    }
+  },
+  "collections": {
+    "users": {
+      "description": "User profile records with role assignments",
+      "entity": "UserProfile",
+      "documentId": "auth.uid"
+    },
+    "club_settings": {
+      "description": "Single document 'main' storing dynamic club headlines & info",
+      "entity": "ClubSettings",
+      "documentId": "main"
+    },
+    "events": {
+      "description": "Events and workshops scheduled by the club",
+      "entity": "ClubEvent",
+      "documentId": "auto"
+    },
+    "resources": {
+      "description": "Curated security guides and tools",
+      "entity": "ResourceItem",
+      "documentId": "auto"
+    },
+    "team_members": {
+      "description": "Club executive board and track leads",
+      "entity": "TeamMember",
+      "documentId": "auto"
+    },
+    "recruits": {
+      "description": "Cadet enlistment submissions",
+      "entity": "RecruitApplication",
+      "documentId": "auto"
+    }
+  },
+  "rules": {
+    "version": "2"
+  }
+}
