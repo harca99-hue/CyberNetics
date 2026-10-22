@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, ArrowRight, Zap, Target, Award, Users, ChevronRight, Lock, QrCode, Gamepad2 } from 'lucide-react';
+import { Terminal, ArrowRight, Zap, Target, Award, Users, ChevronRight, Lock, QrCode, Gamepad2, Radio } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
 
 interface HeroProps {
@@ -78,10 +78,10 @@ export const Hero: React.FC<HeroProps> = ({
               <button
                 id="hero-games-btn"
                 onClick={onScrollToGames}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl font-mono text-sm font-semibold text-white bg-gradient-to-r from-blue-600/30 to-cyan-600/30 hover:from-blue-600/50 hover:to-cyan-600/50 border border-cyan-400/50 hover:border-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all"
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl font-mono text-sm font-semibold text-white bg-gradient-to-r from-blue-600/30 via-cyan-600/30 to-indigo-600/30 hover:from-blue-600/50 hover:to-cyan-600/50 border border-cyan-400/50 hover:border-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all cursor-pointer"
               >
-                <Gamepad2 className="w-4 h-4 text-cyan-400" />
-                <span>Play Practice Games</span>
+                <Radio className="w-4 h-4 text-rose-400 animate-pulse" />
+                <span>SOC War Room Sim</span>
               </button>
 
               <button

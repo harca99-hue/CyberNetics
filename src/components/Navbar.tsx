@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Terminal, QrCode, Lock, ChevronRight, Menu, X, Sparkles, Gamepad2, Globe, ExternalLink } from 'lucide-react';
+import { Shield, Terminal, QrCode, Lock, ChevronRight, Menu, X, Sparkles, Gamepad2, Globe, ExternalLink, Radio } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
 
 interface NavbarProps {
@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="text-slate-300 font-semibold">{clubSettings.university}</span>
           </span>
           <span className="text-slate-700 hidden md:inline">|</span>
-          <span className="hidden md:inline text-slate-400 truncate max-w-sm lg:max-w-md">
+          <span className="hidden md:inline text-slate-400 max-w-xl lg:max-w-2xl truncate">
             {clubSettings.regularMeeting}
           </span>
           {clubSettings.announcement && (
@@ -135,10 +135,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onScrollToGames}
               className="px-2.5 py-1 rounded-full text-xs font-mono font-medium text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-700/50 transition-all whitespace-nowrap shrink-0 inline-flex items-center gap-1.5 cursor-pointer"
-              title="Play interactive cybersecurity practice mini-games"
+              title="Enter interactive Incident Response & Cyber War Room simulation"
             >
-              <Gamepad2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span>Mini-Games</span>
+              <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse shrink-0" />
+              <span>SOC War Room</span>
             </button>
             <button 
               onClick={() => scrollToSection('resources')}
@@ -166,18 +166,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>terminal.sh</span>
             </button>
 
-            {/* Official Website Direct Link Button */}
-            <a
-              href={officialWebsiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-mono text-cyan-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/60 hover:border-cyan-500 rounded-lg transition-all whitespace-nowrap shrink-0 group"
-              title="Visit official website: https://cybernetics-club.vercel.app (opens in new tab)"
-            >
-              <Globe className="w-3.5 h-3.5 text-cyan-400 group-hover:rotate-12 transition-transform shrink-0" />
-              <span>cybernetics-club.vercel.app</span>
-              <ExternalLink className="w-3 h-3 text-cyan-400/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
-            </a>
 
             {/* Share & QR Code Button */}
             <button
@@ -202,15 +190,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Mobile / Tablet Menu Button (Visible below lg) */}
             <div className="flex lg:hidden items-center gap-1.5 ml-1">
-              <a
-                href={officialWebsiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 h-8 w-8 flex items-center justify-center text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 rounded-lg shrink-0"
-                title="Open official website (https://cybernetics-club.vercel.app)"
-              >
-                <Globe className="w-4 h-4 shrink-0" />
-              </a>
               <button
                 onClick={onOpenShare}
                 className="sm:hidden p-1.5 h-8 w-8 flex items-center justify-center text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 rounded-lg shrink-0"
@@ -269,8 +248,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className="flex items-center gap-2 py-2 text-cyan-300 hover:text-white font-mono text-left w-full cursor-pointer"
           >
-            <Gamepad2 className="w-4 h-4 text-cyan-400" />
-            <span>// 03. Cyber Mini-Games</span>
+            <Radio className="w-4 h-4 text-rose-400 animate-pulse" />
+            <span>// 03. SOC Incident War Room</span>
           </button>
           <button
             onClick={() => { scrollToSection('events'); setMobileMenuOpen(false); }}

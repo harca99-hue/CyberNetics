@@ -111,11 +111,12 @@ export interface ClubSettings {
   lastUpdated?: string;
 }
 
-export type MiniGameId = 'sqli' | 'phishing' | 'firewall' | 'hashcracker' | 'cipher';
+export type WarRoomModuleId = 'siem-forensics' | 'web-exploit-chain' | 'memory-malware' | 'smart-contract' | 'binary-rop';
+export type MiniGameId = WarRoomModuleId | 'sqli' | 'phishing' | 'firewall' | 'hashcracker' | 'cipher';
 
 export interface MiniGameProgress {
   score: number;
-  completedGames: Record<MiniGameId, boolean>;
+  completedGames: Record<string, boolean>;
   solvedChallengesCount: number;
   badgeTitle: string;
 }

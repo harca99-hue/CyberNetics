@@ -5,7 +5,7 @@ export const CLUB_INFO = {
   university: 'Florida Cyber Innovation & Technology Institute',
   established: '2021',
   tagline: 'Defending Florida Systems. Uncovering Exploits. Shaping Cyber Leaders.',
-  regularMeeting: 'Every other Friday from 1:00 PM to 3:00 PM — Building 13 Room 105',
+  regularMeeting: 'Every other Wednesday and Friday from 3:00 PM to 5:00 PM — Building 13 Room 105',
   websiteUrl: 'https://cybernetics-club.vercel.app',
   discordInvite: 'https://discord.gg/cybernetics-college',
   githubUrl: 'https://github.com/cybernetics-club',

@@ -505,7 +505,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       </label>
                       <input
                         type="text"
-                        placeholder="e.g. 📢 Join our Welcome Back Pizza & CTF Session this Friday at 1:00 PM in Building 13 Room 105!"
+                        placeholder="e.g. 📢 Join our Welcome Back Pizza & CTF Session this Friday at 3:00 PM in Building 13 Room 105!"
                         value={settingsForm.announcement || ''}
                         onChange={(e) => setSettingsForm({ ...settingsForm, announcement: e.target.value })}
                         className="w-full px-3 py-2 bg-[#070b14] border border-amber-500/40 rounded-lg text-sm text-amber-200 focus:border-amber-400 focus:outline-none"
@@ -581,7 +581,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           title: '',
                           category: 'Workshop',
                           date: 'NOV 15, 2026',
-                          time: '1:00 PM - 3:00 PM',
+                          time: '3:00 PM - 5:00 PM',
                           location: 'Building 13',
                           room: 'Room 105',
                           difficulty: 'Beginner',
