@@ -344,46 +344,82 @@ export const CURATED_RESOURCES: ResourceItem[] = [
     id: 'res-1',
     title: 'OverTheWire: Bandit Wargame',
     category: 'Platform',
-    description: 'The golden standard for mastering Linux command line, permissions, SSH tunneling, and basic piping.',
+    description: 'The golden standard for mastering Linux command line, file permissions, SSH tunneling, networking fundamentals, and shell scripting.',
     url: 'https://overthewire.org/wargames/bandit/',
-    tags: ['Linux', 'Beginner', 'CLI'],
-    recommendedFor: 'Every new Cyber Netics recruit'
+    tags: ['Linux', 'Wargames', 'Beginner', 'CLI', 'Free'],
+    recommendedFor: 'Every new Cyber Netics recruit & Linux beginners'
   },
   {
     id: 'res-2',
     title: 'PortSwigger Web Security Academy',
     category: 'Platform',
-    description: 'Free interactive web vulnerability labs covering SQLi, XSS, CSRF, SSRF, and business logic flaws.',
+    description: 'Free interactive web vulnerability labs covering SQLi, XSS, CSRF, SSRF, JWT bypass, and business logic flaws by the makers of Burp Suite.',
     url: 'https://portswigger.net/web-security',
-    tags: ['Web Sec', 'Burp Suite', 'OWASP'],
-    recommendedFor: 'Offensive Track members'
+    tags: ['Web Sec', 'Burp Suite', 'OWASP', 'Labs', 'Free'],
+    recommendedFor: 'Offensive Track & Web Application Security enthusiasts'
   },
   {
     id: 'res-3',
     title: 'PicoCTF by Carnegie Mellon',
     category: 'Platform',
-    description: 'A beginner-friendly gamified cyber competition with continuous learning problems across all categories.',
+    description: 'A beginner-friendly gamified cyber competition with continuous learning problems across forensics, cryptography, reverse engineering, and binary exploitation.',
     url: 'https://picoctf.org',
-    tags: ['CTF', 'Beginner', 'Practice'],
-    recommendedFor: 'Freshmen & first-time CTF players'
+    tags: ['CTF', 'Beginner', 'Reverse Eng', 'Crypto', 'Free'],
+    recommendedFor: 'Freshmen, first-time CTF players & collegiate qualifiers'
   },
   {
     id: 'res-4',
     title: 'CyberChef — The Cyber Swiss Army Knife',
     category: 'Toolkit',
-    description: 'Indispensable browser-based tool for decoding hex, base64, XOR, hashing, and manipulating data formats.',
+    description: 'Indispensable browser-based tool by GCHQ for decoding hex, base64, XOR, hashing, data carving, and manipulating complex cryptographic data formats.',
     url: 'https://gchq.github.io/CyberChef/',
-    tags: ['Crypto', 'Decoding', 'Utility'],
-    recommendedFor: 'All cybersecurity practitioners'
+    tags: ['Crypto', 'Decoding', 'Utility', 'Deobfuscation', 'Free'],
+    recommendedFor: 'All cybersecurity practitioners & CTF competitors'
   },
   {
     id: 'res-5',
+    title: 'TryHackMe: Hands-on Cyber Training',
+    category: 'Platform',
+    description: 'Guided virtual browser-based labs and structured career paths covering offensive penetration testing, defensive SOC analysis, and network fundamentals.',
+    url: 'https://tryhackme.com',
+    tags: ['Hands-on', 'SOC', 'Red Team', 'Labs', 'Free Tier'],
+    recommendedFor: 'Foundational learning & guided walkthrough rooms'
+  },
+  {
+    id: 'res-6',
+    title: 'Hack The Box (HTB) Labs & Academy',
+    category: 'Platform',
+    description: 'Industry-standard penetration testing wargames and live vulnerable virtual machines for active red teaming, privilege escalation, and Active Directory.',
+    url: 'https://www.hackthebox.com',
+    tags: ['Pentesting', 'Active Directory', 'PrivEsc', 'Wargames', 'Free Tier'],
+    recommendedFor: 'Advanced red teamers & OSCP certification prep'
+  },
+  {
+    id: 'res-7',
+    title: 'Blue Team Labs Online (BTLO)',
+    category: 'Platform',
+    description: 'Gamified defensive cybersecurity training platform focusing on real-world incident response, digital forensics, SIEM log analysis, and threat hunting.',
+    url: 'https://blueteamlabs.online',
+    tags: ['Blue Team', 'DFIR', 'SIEM', 'Threat Hunting', 'Free Tier'],
+    recommendedFor: 'Defensive Operations & SOC analyst career track'
+  },
+  {
+    id: 'res-8',
+    title: 'DefendTheWeb Interactive Security Platform',
+    category: 'Platform',
+    description: 'Interactive cybersecurity learning platform with over 60+ challenges, articles, and playground exercises covering security fundamentals and hacking.',
+    url: 'https://defendtheweb.net',
+    tags: ['Web Sec', 'Logic Flaws', 'Crypto', 'Challenges', 'Free'],
+    recommendedFor: 'Hands-on web exploit defense & secure coding'
+  },
+  {
+    id: 'res-9',
     title: 'Cyber Netics 4-Year Career & Cert Roadmap',
     category: 'Roadmap',
-    description: 'Our curated guide on when to take Security+, eJPT, OSCP, and how to format a resume for defense contractor internships.',
+    description: 'Our curated guide on when to take Security+, eJPT, and OSCP, and how to format a resume for defense contractor and tech internships.',
     url: 'https://cybernetics-club.vercel.app',
-    tags: ['Career', 'Certifications', 'Resume'],
-    recommendedFor: 'All collegiate members'
+    tags: ['Career', 'Certifications', 'Resume', 'Roadmap'],
+    recommendedFor: 'All collegiate members & job seekers'
   }
 ];
 
@@ -392,3 +428,5 @@ export const TERMINAL_EASTER_EGG = {
   flag: 'CYBERNETICS{h4ck3r_2026_n3tics}',
   reward: 'Verified Recruit Badge (Unlocks VIP application priority!)'
 };
+
+export { MEMBER_WRITEUPS, MEMBER_SCRIPTS, OPEN_SOURCE_TOOLS } from './writeupsAndToolsData';

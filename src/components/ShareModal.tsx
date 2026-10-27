@@ -11,7 +11,10 @@ import {
   Globe, 
   Printer, 
   Sparkles,
-  ShieldAlert
+  ShieldAlert,
+  Smartphone,
+  ShieldCheck,
+  RefreshCw
 } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
 
@@ -25,24 +28,27 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'qr' | 'flyer'>('qr');
+  const [qrTheme, setQrTheme] = useState<'contrast' | 'cyber'>('contrast');
   const flyerRef = useRef<HTMLDivElement>(null);
 
-  // Normalize official website URL requested by administrator (resolving https://cybernetics-club.vercel.app)
+  // Official live website link
+  const OFFICIAL_LIVE_URL = 'https://cybernetics-club.vercel.app';
+
+  // Normalize website URL to ensure it points to the official live website
   const resolveWebsiteUrl = (url?: string): string => {
-    if (!url) return 'https://cybernetics-club.vercel.app';
+    if (!url) return OFFICIAL_LIVE_URL;
     let clean = url.trim();
-    if (clean.startsWith('https;//')) {
-      clean = clean.replace('https;//', 'https://');
-    } else if (clean.startsWith('http;//')) {
-      clean = clean.replace('http;//', 'http://');
-    }
-    if (clean.startsWith('https//')) {
-      clean = clean.replace('https//', 'https://');
-    } else if (clean.startsWith('http//')) {
-      clean = clean.replace('http//', 'http://');
-    }
-    if (clean.includes('cybernetics.com') || clean.includes('cybernetics.net') || clean.includes('cybernetics.vercel.app') || clean.includes('cybernetics-club.vercel.app')) {
-      return 'https://cybernetics-club.vercel.app';
+    if (clean.startsWith('https;//')) clean = clean.replace('https;//', 'https://');
+    if (clean.startsWith('http;//')) clean = clean.replace('http;//', 'http://');
+    if (clean.startsWith('https//')) clean = clean.replace('https//', 'https://');
+    if (clean.startsWith('http//')) clean = clean.replace('http//', 'http://');
+    if (
+      clean.includes('cybernetics.com') || 
+      clean.includes('cybernetics.net') || 
+      clean.includes('cybernetics.vercel.app') || 
+      clean.includes('cybernetics-club.vercel.app')
+    ) {
+      return OFFICIAL_LIVE_URL;
     }
     if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
       clean = `https://${clean}`;
@@ -52,14 +58,16 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
 
   const publicUrl = resolveWebsiteUrl(clubSettings.websiteUrl);
 
+  // Generate QR Code with high error correction and reliable contrast
   useEffect(() => {
     if (isOpen) {
+      const isContrast = qrTheme === 'contrast';
       QRCode.toDataURL(publicUrl, {
-        width: 380,
-        margin: 2,
+        width: 480,
+        margin: 3,
         color: {
-          dark: '#080d1a',
-          light: '#38bdf8'
+          dark: isContrast ? '#050a14' : '#22d3ee',
+          light: isContrast ? '#ffffff' : '#080d1a'
         },
         errorCorrectionLevel: 'H'
       })
@@ -70,7 +78,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
         console.error('Failed to generate QR code', err);
       });
     }
-  }, [isOpen, publicUrl]);
+  }, [isOpen, publicUrl, qrTheme]);
 
   if (!isOpen) return null;
 
@@ -80,7 +88,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback
       const input = document.createElement('input');
       input.value = publicUrl;
       document.body.appendChild(input);
@@ -96,14 +103,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
     if (!qrDataUrl) return;
     const a = document.createElement('a');
     a.href = qrDataUrl;
-    a.download = 'cyber-netics-club-qr.png';
+    a.download = 'cybernetics-club-official-qr.png';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({
           title: clubSettings.name || 'Cyber Netics Cybersecurity Club',
@@ -111,7 +118,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
           url: publicUrl,
         });
       } catch {
-        // Ignored if cancelled
+        // User dismissed share dialog
       }
     } else {
       handleCopyLink();
@@ -144,14 +151,15 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
               <QrCode className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white tracking-wide">Share Website & QR Code</h3>
-              <p className="text-xs text-slate-400 font-mono">Public Google Cloud Endpoint Distribution</p>
+              <h3 className="text-lg font-bold text-white tracking-wide">Official Website QR Code</h3>
+              <p className="text-xs text-slate-400 font-mono">Verified Live Vercel Link Distribution</p>
             </div>
           </div>
           <button
             id="close-share-modal-btn"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors cursor-pointer"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -162,19 +170,19 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
           <button
             id="tab-qr-code-btn"
             onClick={() => setActiveTab('qr')}
-            className={`pb-3 px-4 text-xs font-semibold uppercase tracking-wider flex items-center gap-2 border-b-2 transition-colors ${
+            className={`pb-3 px-4 text-xs font-semibold uppercase tracking-wider flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
               activeTab === 'qr'
                 ? 'border-cyan-400 text-cyan-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <QrCode className="w-4 h-4" />
-            Digital QR & Link
+            Digital QR &amp; Link
           </button>
           <button
             id="tab-flyer-btn"
             onClick={() => setActiveTab('flyer')}
-            className={`pb-3 px-4 text-xs font-semibold uppercase tracking-wider flex items-center gap-2 border-b-2 transition-colors ${
+            className={`pb-3 px-4 text-xs font-semibold uppercase tracking-wider flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
               activeTab === 'flyer'
                 ? 'border-cyan-400 text-cyan-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -191,40 +199,68 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
             <div className="space-y-6">
               {/* QR Code Presentation Box */}
               <div className="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-xl bg-[#080d18] border border-cyan-500/20">
-                <div className="relative p-3 bg-gradient-to-br from-cyan-950/40 to-slate-900 rounded-xl border border-cyan-400/40 shadow-inner flex flex-col items-center shrink-0">
+                
+                {/* QR Code Canvas */}
+                <div className="relative p-3.5 bg-white rounded-2xl shadow-xl flex flex-col items-center shrink-0 border-2 border-cyan-400/50">
                   {qrDataUrl ? (
                     <img 
                       src={qrDataUrl} 
-                      alt="Cyber Netics Public Website QR Code" 
-                      className="w-44 h-44 rounded-lg shadow-md"
+                      alt={`QR Code for ${publicUrl}`} 
+                      className="w-44 h-44 rounded"
                     />
                   ) : (
-                    <div className="w-44 h-44 flex items-center justify-center text-slate-500 font-mono text-xs">
+                    <div className="w-44 h-44 flex items-center justify-center text-slate-700 font-mono text-xs">
                       Generating QR...
                     </div>
                   )}
-                  <span className="mt-2 text-[10px] uppercase font-mono tracking-widest text-cyan-400 font-semibold">
-                    SCAN WITH MOBILE CAMERA
-                  </span>
+                  <div className="mt-2 text-[10px] uppercase font-mono tracking-wider text-slate-900 font-bold flex items-center gap-1">
+                    <Smartphone className="w-3 h-3 text-cyan-600" />
+                    <span>SCAN WITH PHONE CAMERA</span>
+                  </div>
                 </div>
 
                 <div className="flex-1 space-y-3 text-left">
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                    <Globe className="w-3 h-3" />
-                    LIVE ON GOOGLE CLOUD
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    ENCODED TO OFFICIAL VERCEL LIVE URL
                   </div>
                   <h4 className="text-white font-bold text-base leading-snug">
-                    Share directly with students, recruits & executive board
+                    Share directly with students, recruits &amp; visitors
                   </h4>
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    Anyone can scan this QR code or click the public link on mobile or desktop to browse workshops, submit cadet applications, or solve CTF challenges.
+                    Point any smartphone camera at this code to open our official live website, browse workshops, submit recruit applications, or practice in the Cyber War Room.
                   </p>
+
+                  {/* QR Style Options */}
+                  <div className="flex items-center gap-2 pt-1 text-xs font-mono">
+                    <span className="text-slate-400 text-[11px]">QR Style:</span>
+                    <button
+                      onClick={() => setQrTheme('contrast')}
+                      className={`px-2 py-1 rounded text-[11px] cursor-pointer ${
+                        qrTheme === 'contrast'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400 font-semibold'
+                          : 'bg-slate-900 text-slate-400 border border-slate-800'
+                      }`}
+                    >
+                      High-Contrast (Camera Optimal)
+                    </button>
+                    <button
+                      onClick={() => setQrTheme('cyber')}
+                      className={`px-2 py-1 rounded text-[11px] cursor-pointer ${
+                        qrTheme === 'cyber'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400 font-semibold'
+                          : 'bg-slate-900 text-slate-400 border border-slate-800'
+                      }`}
+                    >
+                      Cyber Neon
+                    </button>
+                  </div>
 
                   <div className="pt-2 flex flex-wrap gap-2">
                     <button
                       id="download-qr-btn"
                       onClick={handleDownloadQr}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 text-xs font-medium transition-all"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium font-mono transition-all shadow-[0_0_12px_rgba(6,182,212,0.3)] cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
                       Save PNG Image
@@ -233,7 +269,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                       <button
                         id="native-share-btn"
                         onClick={handleNativeShare}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-all cursor-pointer"
                       >
                         <Share2 className="w-3.5 h-3.5" />
                         Share...
@@ -246,17 +282,17 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
               {/* Public Link Copy Bar */}
               <div>
                 <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                  Official Website Address
+                  Encoded Official Website Address
                 </label>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 flex items-center gap-2 px-3.5 py-2.5 bg-[#070b14] border border-slate-800 rounded-lg text-xs font-mono text-cyan-300 overflow-x-auto whitespace-nowrap scrollbar-none">
+                  <div className="flex-1 flex items-center gap-2 px-3.5 py-2.5 bg-[#070b14] border border-cyan-500/30 rounded-lg text-xs font-mono text-cyan-300 overflow-x-auto whitespace-nowrap scrollbar-none">
                     <Globe className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                    <span>{publicUrl}</span>
+                    <span className="font-bold">{publicUrl}</span>
                   </div>
                   <button
                     id="copy-public-url-btn"
                     onClick={handleCopyLink}
-                    className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold font-mono uppercase tracking-wide transition-all ${
+                    className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold font-mono uppercase tracking-wide transition-all cursor-pointer ${
                       copied
                         ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50'
                         : 'bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-950/50'
@@ -278,7 +314,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                     href={publicUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg text-xs font-semibold font-mono uppercase tracking-wide bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition-all"
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg text-xs font-semibold font-mono uppercase tracking-wide bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition-all cursor-pointer"
                     title="Open website URL in new tab"
                   >
                     <span>Open</span>
@@ -288,13 +324,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               {/* Notice & Cloud sync info */}
-              <div className="p-3.5 rounded-lg bg-slate-900/70 border border-slate-800 text-xs text-slate-400 space-y-1">
+              <div className="p-3.5 rounded-lg bg-slate-900/70 border border-slate-800 text-xs text-slate-400 space-y-1 font-mono">
                 <div className="flex items-center gap-2 text-slate-300 font-semibold">
                   <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  Continuous Google Cloud Synchronization
+                  Live Official Production Synchronization
                 </div>
                 <p>
-                  Any updates made through the Admin Portal save to Firebase Firestore in Google Cloud and immediately update for anyone visiting this public URL.
+                  This QR code encodes <span className="text-cyan-300 font-semibold">https://cybernetics-club.vercel.app</span>, directing all scans straight to our production cyber hub.
                 </p>
               </div>
             </div>
@@ -320,12 +356,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="flex justify-center my-2">
-                  <div className="p-3 bg-cyan-400/90 rounded-xl shadow-lg shadow-cyan-900/40">
+                  <div className="p-3.5 bg-white rounded-2xl shadow-xl border-2 border-cyan-400">
                     {qrDataUrl && (
                       <img 
                         src={qrDataUrl} 
                         alt="QR Code" 
-                        className="w-40 h-40 rounded"
+                        className="w-44 h-44 rounded"
                       />
                     )}
                   </div>
@@ -334,7 +370,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                 <div className="text-xs text-slate-300 space-y-1 font-mono">
                   <p className="font-bold text-white">🗓️ {clubSettings.regularMeeting}</p>
                   <p className="text-slate-400">All majors and experience levels welcome!</p>
-                  <p className="text-cyan-400 font-semibold break-all pt-1">{publicUrl}</p>
+                  <p className="text-cyan-400 font-semibold break-all pt-1 font-bold">{publicUrl}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[11px] font-mono text-slate-400">
@@ -344,10 +380,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                   </div>
                   <div className="p-1.5 bg-slate-900/60 rounded border border-slate-800">
                     <div className="text-white font-bold">🔵 Blue Team</div>
-                    <div>SOC & Defense</div>
+                    <div>SOC &amp; Defense</div>
                   </div>
                   <div className="p-1.5 bg-slate-900/60 rounded border border-slate-800">
-                    <div className="text-white font-bold">⚡ CTFs & Labs</div>
+                    <div className="text-white font-bold">⚡ CTFs &amp; Labs</div>
                     <div>Wargames</div>
                   </div>
                 </div>
@@ -357,7 +393,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                 <button
                   id="print-flyer-btn"
                   onClick={handlePrintFlyer}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs transition-colors shadow-lg shadow-cyan-950/50"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs font-mono transition-colors shadow-lg shadow-cyan-950/50 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
                   Print Campus Poster
@@ -369,14 +405,16 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
 
         {/* Modal Footer */}
         <div className="px-6 py-3 bg-[#080d18] border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-          <span className="font-mono text-[11px]">PROJECT ID: sonic-keyword-xggh3</span>
+          <span className="font-mono text-[11px] text-slate-500">
+            TARGET: <span className="text-cyan-400">{publicUrl}</span>
+          </span>
           <a
             href={publicUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 transition-colors"
           >
-            <span>Open Public Site</span>
+            <span>Open Website</span>
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>

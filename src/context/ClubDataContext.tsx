@@ -236,19 +236,32 @@ export const ClubDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // 3. Resources collection
     const unsubResources = onSnapshot(collection(db, 'resources'), (snapshot) => {
+      const defaultMap = new Map(RESOURCES.map(r => [r.id, r]));
       if (!snapshot.empty) {
-        const firestoreResources: ResourceItem[] = snapshot.docs.map(d => {
+        const firestoreList: ResourceItem[] = [];
+        snapshot.docs.forEach(d => {
           const item = d.data() as Omit<ResourceItem, 'id'>;
-          return {
+          const defaultItem = defaultMap.get(d.id);
+          // If default item is a known practice platform and Firestore has club url, restore real platform url
+          let effectiveUrl = cleanResourceUrl(item.url);
+          if (defaultItem && defaultItem.url !== 'https://cybernetics-club.vercel.app' && effectiveUrl === 'https://cybernetics-club.vercel.app') {
+            effectiveUrl = defaultItem.url;
+          }
+          firestoreList.push({
             id: d.id,
             ...item,
-            url: cleanResourceUrl(item.url)
-          };
+            url: effectiveUrl
+          });
+          defaultMap.delete(d.id);
         });
-        setResources(firestoreResources);
+        // Append any default resources that were not in Firestore yet
+        setResources([...firestoreList, ...Array.from(defaultMap.values())]);
+      } else {
+        setResources(RESOURCES);
       }
     }, (err) => {
       console.warn('Firestore resources snapshot notice:', err.message);
+      setResources(RESOURCES);
     });
 
     // 4. Team Members collection

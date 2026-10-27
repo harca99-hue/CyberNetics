@@ -4,7 +4,6 @@ import { useClubData } from '../context/ClubDataContext';
 
 interface HeroProps {
   onOpenJoin: () => void;
-  onScrollToTerminal: () => void;
   onScrollToGames?: () => void;
   onScrollToTracks: () => void;
   onOpenShare?: () => void;
@@ -12,12 +11,18 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ 
   onOpenJoin, 
-  onScrollToTerminal, 
   onScrollToGames,
   onScrollToTracks, 
   onOpenShare 
 }) => {
   const { clubSettings } = useClubData();
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <section id="hero" className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden cyber-grid">
@@ -69,7 +74,7 @@ export const Hero: React.FC<HeroProps> = ({
               <button
                 id="hero-join-btn"
                 onClick={onOpenJoin}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-mono text-sm font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 shadow-[0_0_25px_rgba(34,211,238,0.35)] hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] transition-all"
+                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-mono text-sm font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 shadow-[0_0_25px_rgba(34,211,238,0.35)] hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] transition-all cursor-pointer"
               >
                 <span>JOIN CYBER NETICS</span>
                 <ArrowRight className="w-4 h-4" />
@@ -85,17 +90,16 @@ export const Hero: React.FC<HeroProps> = ({
               </button>
 
               <button
-                id="hero-terminal-btn"
-                onClick={onScrollToTerminal}
-                className="inline-flex items-center gap-2 px-4 py-3.5 rounded-xl font-mono text-sm font-medium text-slate-300 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/50 shadow-sm transition-all"
+                id="hero-tools-btn"
+                onClick={() => scrollToSection('tool-vault')}
+                className="inline-flex items-center gap-2 px-4 py-3.5 rounded-xl font-mono text-sm font-medium text-slate-300 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/50 shadow-sm transition-all cursor-pointer"
               >
-                <Terminal className="w-4 h-4 text-cyan-400" />
-                <span>Terminal CTF</span>
+                <span>Open-Source Tools</span>
               </button>
 
               <button
                 onClick={onScrollToTracks}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors px-2 py-1"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors px-2 py-1 cursor-pointer"
               >
                 <span>View 5 Specialized Tracks</span>
                 <ChevronRight className="w-4 h-4" />
@@ -147,18 +151,18 @@ export const Hero: React.FC<HeroProps> = ({
                 </div>
 
                 <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Press terminal.sh to interact</span>
-                  <span className="text-cyan-400 animate-pulse font-bold">READY_</span>
+                  <span>Simulated SOC Environment</span>
+                  <span className="text-emerald-400 font-bold">READY_</span>
                 </div>
               </div>
 
               {/* Quick action button within box */}
               <button
-                onClick={onScrollToTerminal}
-                className="mt-4 w-full py-2 bg-gradient-to-r from-cyan-950 to-slate-900 hover:from-cyan-900 hover:to-slate-800 text-cyan-300 text-xs font-mono font-medium rounded-lg border border-cyan-700/40 flex items-center justify-center gap-2 transition-all"
+                onClick={onScrollToGames}
+                className="mt-4 w-full py-2 bg-gradient-to-r from-cyan-950 to-slate-900 hover:from-cyan-900 hover:to-slate-800 text-cyan-300 text-xs font-mono font-medium rounded-lg border border-cyan-700/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Open Full Interactive Terminal & Mini-CTF</span>
+                <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+                <span>Launch Interactive SOC Incident Simulation</span>
               </button>
             </div>
           </div>

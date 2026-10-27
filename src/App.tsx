@@ -9,11 +9,13 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutSection } from './components/AboutSection';
 import { Tracks } from './components/Tracks';
-import { TerminalChallenge } from './components/TerminalChallenge';
 import { CyberMiniGames } from './components/CyberMiniGames';
 import { EventsSection } from './components/EventsSection';
 import { CTFShowcase } from './components/CTFShowcase';
 import { ResourcesSection } from './components/ResourcesSection';
+import { OpenSourceToolVaultSection } from './components/OpenSourceToolVaultSection';
+import { WriteupsBlogSection } from './components/WriteupsBlogSection';
+import { ToolsRepositorySection } from './components/ToolsRepositorySection';
 import { LeadershipSection } from './components/LeadershipSection';
 import { JoinModal } from './components/JoinModal';
 import { ShareModal } from './components/ShareModal';
@@ -68,13 +70,6 @@ function MainApp() {
     setIsJoinModalOpen(true);
   };
 
-  const scrollToTerminal = () => {
-    const el = document.getElementById('terminal');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const scrollToGames = () => {
     const el = document.getElementById('games');
     if (el) {
@@ -94,7 +89,6 @@ function MainApp() {
       {/* Navigation */}
       <Navbar
         onOpenJoin={() => handleOpenJoin()}
-        onScrollToTerminal={scrollToTerminal}
         onScrollToGames={scrollToGames}
         onOpenShare={() => setIsShareModalOpen(true)}
         onOpenAdmin={() => setIsAdminModalOpen(true)}
@@ -106,7 +100,6 @@ function MainApp() {
         {/* Hero */}
         <Hero
           onOpenJoin={() => handleOpenJoin()}
-          onScrollToTerminal={scrollToTerminal}
           onScrollToGames={scrollToGames}
           onScrollToTracks={scrollToTracks}
           onOpenShare={() => setIsShareModalOpen(true)}
@@ -118,26 +111,28 @@ function MainApp() {
         {/* 02. Specialized Divisions */}
         <Tracks onSelectTrackForJoin={(tid) => handleOpenJoin(tid)} />
 
-        {/* 03. Hands-on Cyber Security Practice Mini-Games */}
+        {/* 03. Interactive SOC Incident Response & Cyber War Room */}
         <CyberMiniGames onUnlockFlag={handleSolveFlag} />
 
-        {/* 04. Interactive Terminal CTF Challenge */}
-        <TerminalChallenge
-          hasSolvedFlag={hasSolvedFlag}
-          onSolveFlag={handleSolveFlag}
-          onOpenJoin={() => handleOpenJoin()}
-        />
-
-        {/* 05. Florida Events, Workshops & Field Operations */}
+        {/* 04. Florida Events, Workshops & Field Operations */}
         <EventsSection />
 
         {/* 05. Competitive CTF & Wargames Standings */}
         <CTFShowcase />
 
-        {/* 06. Curated Resources & Tool Vault */}
+        {/* 06. Member Writeups & CTF Intel Blog */}
+        <WriteupsBlogSection />
+
+        {/* 07. Curated Resources & Practice Vault */}
         <ResourcesSection />
 
-        {/* 07. Leadership Roster & FAQ */}
+        {/* 08. Free Open-Source Tool Vault */}
+        <OpenSourceToolVaultSection />
+
+        {/* 09. Open-Source Club Tools & Scripts Repository */}
+        <ToolsRepositorySection />
+
+        {/* 10. Leadership Roster & FAQ */}
         <LeadershipSection />
       </main>
 

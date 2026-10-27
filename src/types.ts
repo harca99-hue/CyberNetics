@@ -136,3 +136,65 @@ export interface RecruitSubmission {
   status: 'pending' | 'accepted' | 'reviewed';
   submittedAt: string;
 }
+
+export interface CtfWriteup {
+  id: string;
+  title: string;
+  slug: string;
+  event: string;
+  platform: 'PicoCTF' | 'HackTheBox' | 'OverTheWire' | 'Collegiate CTF';
+  category: 'Binary Exploitation' | 'Web Exploitation' | 'Cryptography' | 'Forensics' | 'Reverse Engineering';
+  difficulty: 'Beginner' | 'Intermediate' | 'Hard' | 'Insane';
+  author: string;
+  authorHandle: string;
+  authorRole: string;
+  date: string;
+  readTime: string;
+  points: number;
+  flag: string;
+  summary: string;
+  tags: string[];
+  vulnerability: string;
+  toolsUsed: string[];
+  steps: {
+    title: string;
+    description: string;
+    codeSnippet?: string;
+    codeLanguage?: string;
+    output?: string;
+  }[];
+  exploitScript?: string;
+  lessonsLearned: string[];
+}
+
+export interface MemberScript {
+  id: string;
+  title: string;
+  filename: string;
+  category: 'Recon & OSINT' | 'Web Exploits' | 'Binary & Pwn' | 'Forensics & Crypto' | 'Defensive & SIEM';
+  language: 'python' | 'bash' | 'powershell';
+  author: string;
+  authorHandle: string;
+  version: string;
+  lastUpdated: string;
+  description: string;
+  usage: string;
+  dependencies: string[];
+  tags: string[];
+  code: string;
+}
+
+export interface OpenSourceTool {
+  id: string;
+  name: string;
+  tagline: string;
+  category: 'Network Recon' | 'Web Exploitation' | 'Reverse Engineering' | 'Memory & DFIR' | 'Active Directory' | 'Packet Analysis' | 'Cracking & Crypto';
+  description: string;
+  license: string;
+  officialUrl: string;
+  githubUrl: string;
+  installCommand: string;
+  tags: string[];
+}
+
+

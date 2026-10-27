@@ -58,10 +58,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShare, onOpenAdmin }) => {
             <ul className="space-y-2 text-xs">
               <li><button onClick={() => scrollToSection('about')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Mission &amp; History</button></li>
               <li><button onClick={() => scrollToSection('tracks')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Specialized Tracks</button></li>
-              <li><button onClick={() => scrollToSection('games')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Practice Mini-Games</button></li>
+              <li><button onClick={() => scrollToSection('games')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">SOC War Room</button></li>
+              <li><button onClick={() => scrollToSection('writeups')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Member CTF Writeups</button></li>
+              <li><button onClick={() => scrollToSection('resources')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Practice Platform Vault</button></li>
+              <li><button onClick={() => scrollToSection('tool-vault')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Open-Source Tool Vault</button></li>
+              <li><button onClick={() => scrollToSection('scripts')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Club Tools &amp; Scripts</button></li>
               <li><button onClick={() => scrollToSection('events')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Florida Cyber Events</button></li>
-              <li><button onClick={() => scrollToSection('terminal')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Terminal Challenge</button></li>
-              <li><button onClick={() => scrollToSection('resources')} className="hover:text-cyan-400 transition-colors text-left cursor-pointer">Student Resource Vault</button></li>
             </ul>
           </div>
 

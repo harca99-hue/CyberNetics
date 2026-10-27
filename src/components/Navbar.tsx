@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Shield, Terminal, QrCode, Lock, ChevronRight, Menu, X, Sparkles, Gamepad2, Globe, ExternalLink, Radio } from 'lucide-react';
+import { Shield, QrCode, Lock, ChevronRight, Menu, X, Sparkles, Gamepad2, Globe, ExternalLink, Radio } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
 
 interface NavbarProps {
   onOpenJoin: () => void;
-  onScrollToTerminal: () => void;
   onScrollToGames?: () => void;
   onOpenShare: () => void;
   onOpenAdmin: () => void;
@@ -13,7 +12,6 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ 
   onOpenJoin, 
-  onScrollToTerminal, 
   onScrollToGames,
   onOpenShare, 
   onOpenAdmin, 
@@ -141,14 +139,32 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>SOC War Room</span>
             </button>
             <button 
-              onClick={() => scrollToSection('resources')}
-              className="px-2.5 py-1 rounded-full text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all whitespace-nowrap shrink-0 cursor-pointer"
+              onClick={() => scrollToSection('writeups')}
+              className="px-2 py-1 rounded-full text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all whitespace-nowrap shrink-0 cursor-pointer"
             >
-              Resources
+              Writeups
+            </button>
+            <button 
+              onClick={() => scrollToSection('resources')}
+              className="px-2 py-1 rounded-full text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              Practice
+            </button>
+            <button 
+              onClick={() => scrollToSection('tool-vault')}
+              className="px-2 py-1 rounded-full text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              Tools
+            </button>
+            <button 
+              onClick={() => scrollToSection('scripts')}
+              className="px-2 py-1 rounded-full text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              Scripts
             </button>
             <button 
               onClick={() => scrollToSection('leadership')}
-              className="px-2.5 py-1 rounded-full text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-2 py-1 rounded-full text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all whitespace-nowrap shrink-0 cursor-pointer"
             >
               Leadership
             </button>
@@ -156,17 +172,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right: Actions Cluster (Tools & Buttons) */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Interactive Terminal Challenge Button */}
-            <button
-              onClick={onScrollToTerminal}
-              className="hidden lg:inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-mono text-cyan-400 hover:text-cyan-300 bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-800/50 hover:border-cyan-500 rounded-lg transition-all whitespace-nowrap shrink-0"
-              title="Open interactive cyber terminal challenge"
-            >
-              <Terminal className="w-3.5 h-3.5 shrink-0" />
-              <span>terminal.sh</span>
-            </button>
-
-
             {/* Share & QR Code Button */}
             <button
               id="nav-share-qr-button"
@@ -258,26 +263,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             // 04. Florida Events &amp; CTFs
           </button>
           <button
+            onClick={() => { scrollToSection('writeups'); setMobileMenuOpen(false); }}
+            className="block py-2 text-slate-300 hover:text-cyan-400 text-left w-full cursor-pointer"
+          >
+            // 05. Member Writeups &amp; CTF Blog
+          </button>
+          <button
             onClick={() => { scrollToSection('resources'); setMobileMenuOpen(false); }}
             className="block py-2 text-slate-300 hover:text-cyan-400 text-left w-full cursor-pointer"
           >
-            // 05. Learning Resources &amp; Vault
+            // 06. Practice Platforms &amp; Vault
+          </button>
+          <button
+            onClick={() => { scrollToSection('tool-vault'); setMobileMenuOpen(false); }}
+            className="block py-2 text-cyan-300 hover:text-white font-semibold text-left w-full cursor-pointer"
+          >
+            // 07. Free Open-Source Tool Vault
+          </button>
+          <button
+            onClick={() => { scrollToSection('scripts'); setMobileMenuOpen(false); }}
+            className="block py-2 text-slate-300 hover:text-cyan-400 text-left w-full cursor-pointer"
+          >
+            // 08. Club Tools &amp; Scripts Repo
           </button>
           <button
             onClick={() => { scrollToSection('leadership'); setMobileMenuOpen(false); }}
             className="block py-2 text-slate-300 hover:text-cyan-400 text-left w-full cursor-pointer"
           >
-            // 06. Executive Board &amp; FAQ
-          </button>
-          <button
-            onClick={() => {
-              onScrollToTerminal();
-              setMobileMenuOpen(false);
-            }}
-            className="flex items-center gap-2 py-2 text-cyan-400 hover:text-cyan-300 font-mono text-left w-full"
-          >
-            <Terminal className="w-4 h-4" />
-            <span>// 07. Interactive Terminal CTF</span>
+            // 09. Executive Board &amp; FAQ
           </button>
           <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
             <button
