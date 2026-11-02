@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Shield, QrCode, Lock, ChevronRight, Menu, X, Sparkles, Gamepad2, Globe, ExternalLink, Radio } from 'lucide-react';
+import { Shield, QrCode, Lock, ChevronRight, Menu, X, Sparkles, Gamepad2, Globe, ExternalLink, Radio, Sliders, Palette } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
+import { useSeasonalTheme } from '../context/ThemeContext';
 
 interface NavbarProps {
   onOpenJoin: () => void;
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { clubSettings, isEditor, isAdmin } = useClubData();
+  const { themeConfig, setIsSimulatorOpen } = useSeasonalTheme();
 
   const officialWebsiteUrl = 'https://cybernetics-club.vercel.app';
 
@@ -55,6 +57,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </>
           )}
+
+          {/* Seasonal / Holiday Theme Active Badge */}
+          <button
+            onClick={() => setIsSimulatorOpen(true)}
+            className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all border cursor-pointer hover:scale-105"
+            style={{
+              backgroundColor: themeConfig.badgeBg,
+              borderColor: themeConfig.borderAccent,
+              color: themeConfig.badgeText,
+            }}
+            title="Active Seasonal Protocol — Click to open Theme Simulator"
+          >
+            <span>{themeConfig.icon}</span>
+            <span className="uppercase">{themeConfig.seasonLabel}</span>
+          </button>
         </div>
 
         {/* Right: Verified recruit indicator & Official Club Website External Link */}
@@ -172,6 +189,23 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right: Actions Cluster (Tools & Buttons) */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Theme Engine Simulator Button */}
+            <button
+              onClick={() => setIsSimulatorOpen(true)}
+              className="inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-mono rounded-lg border transition-all whitespace-nowrap shrink-0 cursor-pointer shadow-sm hover:scale-105"
+              style={{
+                backgroundColor: themeConfig.badgeBg,
+                borderColor: themeConfig.borderAccent,
+                color: themeConfig.badgeText,
+              }}
+              title="Open Seasonal Theme Engine & Holiday Simulator"
+            >
+              <span className="text-sm">{themeConfig.icon}</span>
+              <span className="hidden xl:inline font-bold">{themeConfig.name}</span>
+              <span className="xl:hidden font-bold">Theme</span>
+              <Sliders className="w-3 h-3 opacity-70" />
+            </button>
+
             {/* Share & QR Code Button */}
             <button
               id="nav-share-qr-button"
@@ -293,6 +327,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             // 09. Executive Board &amp; FAQ
           </button>
           <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setIsSimulatorOpen(true);
+              }}
+              className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-mono rounded-lg border transition-all"
+              style={{
+                backgroundColor: themeConfig.badgeBg,
+                borderColor: themeConfig.borderAccent,
+                color: themeConfig.badgeText,
+              }}
+            >
+              <span className="text-base">{themeConfig.icon}</span>
+              <span className="font-bold">Seasonal Theme Engine ({themeConfig.name})</span>
+              <Sliders className="w-3.5 h-3.5 opacity-70" />
+            </button>
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

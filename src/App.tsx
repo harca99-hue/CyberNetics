@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ClubDataProvider } from './context/ClubDataContext';
+import { ThemeProvider, useSeasonalTheme } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutSection } from './components/AboutSection';
@@ -20,9 +21,12 @@ import { LeadershipSection } from './components/LeadershipSection';
 import { JoinModal } from './components/JoinModal';
 import { ShareModal } from './components/ShareModal';
 import { AdminPortalModal } from './components/AdminPortalModal';
+import { ThemeSimulator } from './components/ThemeSimulator';
+import { ThemeAmbientParticles } from './components/ThemeAmbientParticles';
 import { Footer } from './components/Footer';
 import { TrackId } from './types';
 import { TERMINAL_EASTER_EGG } from './data/clubData';
+
 
 function MainApp() {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -85,7 +89,10 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans transition-colors duration-500">
+      {/* Dynamic Seasonal & Holiday Ambient Floating Particles */}
+      <ThemeAmbientParticles />
+
       {/* Navigation */}
       <Navbar
         onOpenJoin={() => handleOpenJoin()}
@@ -142,6 +149,9 @@ function MainApp() {
         onOpenAdmin={() => setIsAdminModalOpen(true)}
       />
 
+      {/* Interactive Theme Simulator & Holiday Debug Panel */}
+      <ThemeSimulator />
+
       {/* Join Cyber Netics Onboarding Modal */}
       <JoinModal
         isOpen={isJoinModalOpen}
@@ -168,9 +178,12 @@ function MainApp() {
 
 export default function App() {
   return (
-    <ClubDataProvider>
-      <MainApp />
-    </ClubDataProvider>
+    <ThemeProvider>
+      <ClubDataProvider>
+        <MainApp />
+      </ClubDataProvider>
+    </ThemeProvider>
   );
 }
+
 

@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --theme-primary: #06b6d4;
+    --theme-secondary: #3b82f6;
+    --theme-accent-glow: rgba(6, 182, 212, 0.35);
+    --theme-border-accent: rgba(6, 182, 212, 0.4);
+    --theme-badge-bg: rgba(8, 47, 73, 0.7);
+    --theme-badge-text: #67e8f9;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+
   code, pre, .font-mono {
     font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 }
 
-/* Subtle cyber background grid */
+/* Subtle cyber background grid with seasonal hue blend */
 .cyber-grid {
   background-size: 40px 40px;
   background-image: 
@@ -22,12 +33,26 @@
   background-size: 24px 24px;
 }
 
-/* Scanline effect for terminal header or challenge module */
-.terminal-glow {
-  box-shadow: 0 0 35px -10px rgba(6, 182, 212, 0.25);
+/* Theme accent utilities */
+.theme-glow {
+  box-shadow: 0 0 35px -5px var(--theme-accent-glow);
 }
 
-/* Custom scrollbar for terminal */
+.theme-glow-sm {
+  box-shadow: 0 0 15px -3px var(--theme-accent-glow);
+}
+
+.theme-border-glow {
+  border-color: var(--theme-border-accent);
+  box-shadow: 0 0 16px -4px var(--theme-accent-glow);
+}
+
+/* Scanline effect for terminal header or challenge module */
+.terminal-glow {
+  box-shadow: 0 0 35px -10px var(--theme-accent-glow);
+}
+
+/* Custom scrollbar */
 .terminal-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -40,6 +65,65 @@
   border-radius: 3px;
 }
 .terminal-scroll::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
+  background: var(--theme-primary);
 }
 
+/* Seasonal animations */
+@keyframes festive-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.02);
+  }
+}
+
+.animate-festive-pulse {
+  animation: festive-pulse 4s ease-in-out infinite;
+}
+
+@keyframes float-ambient {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float-ambient 5s ease-in-out infinite;
+}
+
+@keyframes fall-particles {
+  0% {
+    transform: translateY(-10px) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh) translateX(30px);
+    opacity: 0;
+  }
+}
+
+.seasonal-particle {
+  position: fixed;
+  top: -20px;
+  pointer-events: none;
+  z-index: 30;
+  user-select: none;
+  animation-name: fall-particles;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}

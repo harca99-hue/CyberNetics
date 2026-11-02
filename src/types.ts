@@ -197,4 +197,33 @@ export interface OpenSourceTool {
   tags: string[];
 }
 
+export type SeasonalThemeId = 
+  | 'default'
+  | 'halloween'
+  | 'christmas'
+  | 'fourth_of_july'
+  | 'fall'
+  | 'spring'
+  | 'summer'
+  | 'winter';
+
+export interface SeasonalThemeConfig {
+  id: SeasonalThemeId;
+  name: string;
+  seasonLabel: string;
+  icon: string; // Emoji or identifier
+  bannerText: string;
+  tagline: string;
+  dateRangeDescription: string;
+  primaryColor: string; // hex
+  secondaryColor: string; // hex
+  accentGlow: string; // rgba
+  borderAccent: string;
+  badgeBg: string;
+  badgeText: string;
+  particleType?: 'ghosts' | 'snow' | 'fireworks' | 'leaves' | 'petals' | 'sparkles';
+  greetingQuote: string;
+}
+
+
 

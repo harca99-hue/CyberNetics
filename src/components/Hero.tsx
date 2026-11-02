@@ -1,6 +1,7 @@
 import React from 'react';
-import { Terminal, ArrowRight, Zap, Target, Award, Users, ChevronRight, Lock, QrCode, Gamepad2, Radio } from 'lucide-react';
+import { Terminal, ArrowRight, Zap, Target, Award, Users, ChevronRight, Lock, QrCode, Gamepad2, Radio, Sparkles } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
+import { useSeasonalTheme } from '../context/ThemeContext';
 
 interface HeroProps {
   onOpenJoin: () => void;
@@ -16,6 +17,7 @@ export const Hero: React.FC<HeroProps> = ({
   onOpenShare 
 }) => {
   const { clubSettings } = useClubData();
+  const { themeConfig, isAutoMode } = useSeasonalTheme();
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -26,18 +28,42 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     <section id="hero" className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden cyber-grid">
-      {/* Radial ambient glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-cyan-600/15 via-blue-600/10 to-transparent blur-[120px] pointer-events-none -z-10" />
+      {/* Radial ambient glow adapting to active theme */}
+      <div 
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] blur-[130px] pointer-events-none -z-10 transition-colors duration-700" 
+        style={{
+          background: `radial-gradient(circle, ${themeConfig.accentGlow} 0%, rgba(59, 130, 246, 0.08) 50%, transparent 80%)`,
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top telemetry pills */}
+        {/* Top telemetry & seasonal theme pills */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
+          {/* Active Seasonal / Holiday Protocol Pill */}
+          <div 
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono border transition-all shadow-sm"
+            style={{
+              backgroundColor: themeConfig.badgeBg,
+              borderColor: themeConfig.borderAccent,
+              color: themeConfig.badgeText,
+              boxShadow: `0 0 15px -3px ${themeConfig.accentGlow}`,
+            }}
+          >
+            <span className="text-sm">{themeConfig.icon}</span>
+            <span className="font-bold">{themeConfig.bannerText}</span>
+            <span className="opacity-60 hidden md:inline">•</span>
+            <span className="opacity-80 hidden md:inline text-[11px] font-sans">
+              {themeConfig.tagline}
+            </span>
+          </div>
+
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span className="font-semibold">RECRUITMENT OPEN 2026-2027</span>
             <span className="text-cyan-600">•</span>
-            <span className="text-slate-400">All Experience Levels Welcome</span>
+            <span className="text-slate-400">All Levels Welcome</span>
           </div>
+
 
           <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-slate-400 text-xs font-mono">
             <Lock className="w-3 h-3 text-cyan-400" />

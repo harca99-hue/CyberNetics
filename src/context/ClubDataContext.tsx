@@ -117,8 +117,8 @@ const cleanResourceUrl = (url?: string): string => {
 
 // Helper to ensure updated regular meeting schedule is reflected
 const cleanRegularMeeting = (meeting?: string): string => {
-  const target = 'Every other Wednesday and Friday from 3:00 PM to 5:00 PM — Building 13 Room 105';
-  if (!meeting || meeting.includes('Every Thursday') || meeting.includes('Turing Hall') || meeting.includes('1:00 PM') || meeting.includes('Central Campus') || meeting.includes('Every other Friday')) {
+  const target = 'Every other Friday from 5:00 PM to 7:00 PM — Building 13 Room 105';
+  if (!meeting || meeting.includes('Every Thursday') || meeting.includes('Turing Hall') || meeting.includes('1:00 PM') || meeting.includes('3:00 PM') || meeting.includes('Wednesday') || meeting.includes('Central Campus')) {
     return target;
   }
   return meeting;
