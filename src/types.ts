@@ -137,14 +137,22 @@ export interface RecruitSubmission {
   submittedAt: string;
 }
 
+export interface CtfWriteupStep {
+  title: string;
+  description: string;
+  codeSnippet?: string;
+  codeLanguage?: string;
+  output?: string;
+}
+
 export interface CtfWriteup {
   id: string;
   title: string;
   slug: string;
   event: string;
-  platform: 'PicoCTF' | 'HackTheBox' | 'OverTheWire' | 'Collegiate CTF';
-  category: 'Binary Exploitation' | 'Web Exploitation' | 'Cryptography' | 'Forensics' | 'Reverse Engineering';
-  difficulty: 'Beginner' | 'Intermediate' | 'Hard' | 'Insane';
+  platform: 'PicoCTF' | 'HackTheBox' | 'OverTheWire' | 'Collegiate CTF' | string;
+  category: 'Binary Exploitation' | 'Web Exploitation' | 'Cryptography' | 'Forensics' | 'Reverse Engineering' | 'Active Directory' | string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Hard' | 'Insane' | string;
   author: string;
   authorHandle: string;
   authorRole: string;
@@ -156,13 +164,10 @@ export interface CtfWriteup {
   tags: string[];
   vulnerability: string;
   toolsUsed: string[];
-  steps: {
-    title: string;
-    description: string;
-    codeSnippet?: string;
-    codeLanguage?: string;
-    output?: string;
-  }[];
+  steps?: CtfWriteupStep[];
+  markdownBody?: string;
+  markdownUrl?: string;
+  sourceFormat?: 'json' | 'markdown';
   exploitScript?: string;
   lessonsLearned: string[];
 }
@@ -225,5 +230,37 @@ export interface SeasonalThemeConfig {
   greetingQuote: string;
 }
 
+export interface ModuleProgressState {
+  completed: boolean;
+  xpEarned: number;
+  completedAt?: string;
+  stageNotes?: string;
+}
 
+export interface MemberGameProfile {
+  uid: string;
+  profileName: string;
+  callsign: string;
+  email?: string;
+  track: TrackId;
+  xp: number;
+  rank: string;
+  completedModules: Record<WarRoomModuleId, boolean>;
+  moduleStates: Partial<Record<WarRoomModuleId, ModuleProgressState>>;
+  solvedFlags: string[];
+  achievements: string[];
+  createdAt?: unknown;
+  updatedAt?: unknown;
+}
 
+export interface LeaderboardEntry {
+  uid: string;
+  profileName: string;
+  callsign: string;
+  track: TrackId;
+  xp: number;
+  rank: string;
+  solvedCount: number;
+  flagsCount: number;
+  updatedAt?: unknown;
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Terminal, ArrowRight, Zap, Target, Award, Users, ChevronRight, Lock, QrCode, Gamepad2, Radio, Sparkles } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
 import { useSeasonalTheme } from '../context/ThemeContext';
+import { useLiveTelemetry } from '../context/TelemetryContext';
 
 interface HeroProps {
   onOpenJoin: () => void;
@@ -18,6 +19,8 @@ export const Hero: React.FC<HeroProps> = ({
 }) => {
   const { clubSettings } = useClubData();
   const { themeConfig, isAutoMode } = useSeasonalTheme();
+  const { standing } = useLiveTelemetry();
+
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -163,10 +166,11 @@ export const Hero: React.FC<HeroProps> = ({
                   {'> '}Member Candidate // Track: Offensive & Defensive Cyber
                 </div>
 
-                <div className="text-cyan-400 pt-1">$ ctf-rank --current</div>
+                <div className="text-cyan-400 pt-1">$ ctf-rank --live-telemetry</div>
                 <div className="text-emerald-400">
-                  {'> '}[+] CTFtime Collegiate Rank: {clubSettings.ctfGlobalRank}
+                  {'> '}[+] CTFtime Standing: {standing.globalRank} ({standing.ratingPoints} pts · {standing.source === 'live-api' ? 'LIVE' : 'CACHED'})
                 </div>
+
                 <div className="text-slate-400">
                   {'> '}Solved 890+ challenges across Web, Pwn, Crypto, Forensics
                 </div>
@@ -206,13 +210,23 @@ export const Hero: React.FC<HeroProps> = ({
           </div>
 
           <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/30 transition-all">
-            <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono mb-1">
-              <Award className="w-4 h-4" />
-              <span>CTFTIME STANDING</span>
+            <div className="flex items-center justify-between gap-2 text-emerald-400 text-xs font-mono mb-1">
+              <span className="flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                <span>CTFTIME STANDING</span>
+              </span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/70 border border-emerald-700/40 text-emerald-300">
+                {standing.source === 'live-api' ? 'LIVE' : 'CACHE'}
+              </span>
             </div>
-            <div className="text-3xl font-extrabold text-white font-mono">{clubSettings.ctfGlobalRank.replace(' Collegiate', '')}</div>
-            <div className="text-xs text-slate-400 mt-1">Collegiate Global CTF Rank</div>
+            <div className="text-3xl font-extrabold text-white font-mono">
+              {standing.globalRank.replace(' Collegiate', '')}
+            </div>
+            <div className="text-xs text-slate-400 mt-1">
+              Collegiate Global Rank · {standing.ratingPoints} pts
+            </div>
           </div>
+
 
           <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/30 transition-all">
             <div className="flex items-center gap-2 text-blue-400 text-xs font-mono mb-1">

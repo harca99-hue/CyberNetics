@@ -5,13 +5,51 @@
       "type": "object",
       "description": "User profile with role-based access information",
       "properties": {
-        "uid": { "type": "string" },
-        "displayName": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
+        "uid": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 150 },
         "role": { "type": "string", "enum": ["admin", "editor", "member"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "email", "role"]
+    },
+    "MemberProfile": {
+      "title": "MemberProfile",
+      "type": "object",
+      "description": "Student member profile storing private info, XP, rank, and persisted SOC Incident Response simulation states",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "profileName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "callsign": { "type": "string", "maxLength": 40 },
+        "email": { "type": "string", "format": "email", "maxLength": 150 },
+        "track": { "type": "string", "enum": ["offensive", "defensive", "reverse-engineering", "cloud-sec", "crypto"] },
+        "xp": { "type": "number" },
+        "rank": { "type": "string", "maxLength": 60 },
+        "completedModules": { "type": "object" },
+        "moduleStates": { "type": "object" },
+        "solvedFlags": { "type": "array", "items": { "type": "string" } },
+        "achievements": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "profileName", "track", "xp", "rank", "completedModules", "solvedFlags", "achievements", "createdAt", "updatedAt"]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "type": "object",
+      "description": "Public non-PII club leaderboard standing for XP and SOC rank",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "profileName": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "callsign": { "type": "string", "maxLength": 40 },
+        "track": { "type": "string", "enum": ["offensive", "defensive", "reverse-engineering", "cloud-sec", "crypto"] },
+        "xp": { "type": "number" },
+        "rank": { "type": "string", "maxLength": 60 },
+        "solvedCount": { "type": "number" },
+        "flagsCount": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "profileName", "track", "xp", "rank", "solvedCount", "flagsCount", "updatedAt"]
     },
     "ClubSettings": {
       "title": "ClubSettings",
@@ -93,39 +131,38 @@
       "required": ["fullName", "email", "trackInterest"]
     }
   },
-  "collections": {
-    "users": {
-      "description": "User profile records with role assignments",
-      "entity": "UserProfile",
-      "documentId": "auth.uid"
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile records with role assignments"
     },
-    "club_settings": {
-      "description": "Single document 'main' storing dynamic club headlines & info",
-      "entity": "ClubSettings",
-      "documentId": "main"
+    "/member_profiles/{userId}": {
+      "schema": { "$ref": "#/entities/MemberProfile" },
+      "description": "Authenticated student member profiles with XP, rank, CTF flags, and SOC War Room state"
     },
-    "events": {
-      "description": "Events and workshops scheduled by the club",
-      "entity": "ClubEvent",
-      "documentId": "auto"
+    "/leaderboard/{userId}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Public non-PII club XP and rank leaderboard standings"
     },
-    "resources": {
-      "description": "Curated security guides and tools",
-      "entity": "ResourceItem",
-      "documentId": "auto"
+    "/club_settings/{settingId}": {
+      "schema": { "$ref": "#/entities/ClubSettings" },
+      "description": "Single document 'main' storing dynamic club headlines & info"
     },
-    "team_members": {
-      "description": "Club executive board and track leads",
-      "entity": "TeamMember",
-      "documentId": "auto"
+    "/events/{eventId}": {
+      "schema": { "$ref": "#/entities/ClubEvent" },
+      "description": "Events and workshops scheduled by the club"
     },
-    "recruits": {
-      "description": "Cadet enlistment submissions",
-      "entity": "RecruitApplication",
-      "documentId": "auto"
+    "/resources/{resourceId}": {
+      "schema": { "$ref": "#/entities/ResourceItem" },
+      "description": "Curated security guides and tools"
+    },
+    "/team_members/{memberId}": {
+      "schema": { "$ref": "#/entities/TeamMember" },
+      "description": "Club executive board and track leads"
+    },
+    "/recruits/{recruitId}": {
+      "schema": { "$ref": "#/entities/RecruitApplication" },
+      "description": "Cadet enlistment submissions"
     }
-  },
-  "rules": {
-    "version": "2"
   }
 }

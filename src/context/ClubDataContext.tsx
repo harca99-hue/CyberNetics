@@ -277,49 +277,55 @@ export const ClubDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.warn('Firestore team_members snapshot notice:', err.message);
     });
 
-    // 5. Authorized Users collection (for role management)
-    const unsubUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
-      const userList: UserProfile[] = snapshot.docs.map(d => ({
-        uid: d.id,
-        ...(d.data() as Omit<UserProfile, 'uid'>)
-      }));
-      setAuthorizedMembers(userList);
+    // 5. Authorized Users collection (only admins can list users)
+    let unsubUsers: (() => void) | undefined;
+    if (currentUser && (userRole === 'admin' || authEmail?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase())) {
+      unsubUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
+        const userList: UserProfile[] = snapshot.docs.map(d => ({
+          uid: d.id,
+          ...(d.data() as Omit<UserProfile, 'uid'>)
+        }));
+        setAuthorizedMembers(userList);
 
-      // Check current email in this list to update role dynamically
-      if (authEmail) {
-        if (authEmail.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
-          setUserRole('admin');
-        } else {
-          const matched = userList.find(u => u.email.toLowerCase() === authEmail.toLowerCase());
-          if (matched) {
-            setUserRole(matched.role);
+        if (authEmail) {
+          if (authEmail.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+            setUserRole('admin');
+          } else {
+            const matched = userList.find(u => u.email.toLowerCase() === authEmail.toLowerCase());
+            if (matched) {
+              setUserRole(matched.role);
+            }
           }
         }
-      }
-    }, (err) => {
-      console.warn('Firestore users snapshot notice:', err.message);
-    });
+      }, (err) => {
+        console.warn('Firestore users snapshot notice:', err.message);
+      });
+    }
 
-    // 6. Recruits collection
-    const unsubRecruits = onSnapshot(collection(db, 'recruits'), (snapshot) => {
-      const recruitList: RecruitSubmission[] = snapshot.docs.map(d => ({
-        id: d.id,
-        ...(d.data() as Omit<RecruitSubmission, 'id'>)
-      }));
-      setRecruits(recruitList);
-    }, (err) => {
-      // Ignored for unauthenticated users as security rules require editor/admin
-    });
+    // 6. Recruits collection (only editors/admins can read recruits)
+    let unsubRecruits: (() => void) | undefined;
+    if (currentUser && (userRole === 'admin' || userRole === 'editor' || authEmail?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase())) {
+      unsubRecruits = onSnapshot(collection(db, 'recruits'), (snapshot) => {
+        const recruitList: RecruitSubmission[] = snapshot.docs.map(d => ({
+          id: d.id,
+          ...(d.data() as Omit<RecruitSubmission, 'id'>)
+        }));
+        setRecruits(recruitList);
+      }, (err) => {
+        console.warn('Firestore recruits snapshot notice:', err.message);
+      });
+    }
 
     return () => {
       unsubSettings();
       unsubEvents();
       unsubResources();
       unsubMembers();
-      unsubUsers();
-      unsubRecruits();
+      if (unsubUsers) unsubUsers();
+      if (unsubRecruits) unsubRecruits();
     };
-  }, [authEmail]);
+  }, [authEmail, currentUser, userRole]);
+
 
   // Login with Google
   const loginWithGoogle = async () => {

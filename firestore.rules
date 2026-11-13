@@ -2,41 +2,178 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAuthenticated() {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core Identity & Validation Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
       return request.auth != null;
     }
 
-    function isSuperAdmin() {
-      return isAuthenticated() && (
-        request.auth.token.email == 'balorclub29@gmail.com' ||
-        (request.auth.token.email != null && request.auth.token.email == 'balorclub29@gmail.com')
-      );
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
     }
 
-    function getUserData() {
+    function isSuperAdmin() {
+      return isVerifiedUser() &&
+        request.auth.token.email != null &&
+        request.auth.token.email == 'balorclub29@gmail.com';
+    }
+
+    function getUserDoc() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
     function isAdmin() {
-      return isAuthenticated() && (
+      return isVerifiedUser() && (
         isSuperAdmin() ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'admin')
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserDoc().role == 'admin')
       );
     }
 
     function isEditor() {
-      return isAuthenticated() && (
+      return isVerifiedUser() && (
         isAdmin() ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role in ['admin', 'editor'])
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserDoc().role in ['admin', 'editor'])
       );
     }
 
-    // User profiles & member role registry
+    // Entity Validation Blueprints
+    function isValidMemberProfile(data) {
+      return data.keys().hasAll([
+          'uid', 'profileName', 'track', 'xp', 'rank',
+          'completedModules', 'solvedFlags', 'achievements', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'profileName', 'callsign', 'email', 'track', 'xp', 'rank',
+          'completedModules', 'moduleStates', 'solvedFlags', 'achievements', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.uid) &&
+        data.profileName is string && data.profileName.size() >= 1 && data.profileName.size() <= 60 &&
+        (!('callsign' in data) || (data.callsign is string && data.callsign.size() <= 40)) &&
+        (!('email' in data) || (data.email is string && data.email.size() <= 150)) &&
+        data.track is string && data.track in ['offensive', 'defensive', 'reverse-engineering', 'cloud-sec', 'crypto'] &&
+        data.xp is number && data.xp >= 0 && data.xp <= 100000 &&
+        data.rank is string && data.rank.size() >= 1 && data.rank.size() <= 60 &&
+        data.completedModules is map &&
+        (!('moduleStates' in data) || data.moduleStates is map) &&
+        data.solvedFlags is list && data.solvedFlags.size() <= 50 &&
+        (data.solvedFlags.size() == 0 || (data.solvedFlags[0] is string && data.solvedFlags[0].size() <= 120)) &&
+        data.achievements is list && data.achievements.size() <= 50 &&
+        (data.achievements.size() == 0 || (data.achievements[0] is string && data.achievements[0].size() <= 120)) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidLeaderboardEntry(data) {
+      return data.keys().hasAll([
+          'uid', 'profileName', 'track', 'xp', 'rank', 'solvedCount', 'flagsCount', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid', 'profileName', 'callsign', 'track', 'xp', 'rank', 'solvedCount', 'flagsCount', 'updatedAt'
+        ]) &&
+        isValidId(data.uid) &&
+        data.profileName is string && data.profileName.size() >= 1 && data.profileName.size() <= 60 &&
+        (!('callsign' in data) || (data.callsign is string && data.callsign.size() <= 40)) &&
+        data.track is string && data.track in ['offensive', 'defensive', 'reverse-engineering', 'cloud-sec', 'crypto'] &&
+        data.xp is number && data.xp >= 0 && data.xp <= 100000 &&
+        data.rank is string && data.rank.size() >= 1 && data.rank.size() <= 60 &&
+        data.solvedCount is number && data.solvedCount >= 0 && data.solvedCount <= 50 &&
+        data.flagsCount is number && data.flagsCount >= 0 && data.flagsCount <= 50 &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidRecruitSubmission(data) {
+      return data.keys().hasAll(['fullName', 'email', 'status', 'submittedAt']) &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 100 &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 150 &&
+        data.status == 'pending' &&
+        data.submittedAt is string && data.submittedAt.size() <= 60;
+    }
+
+    // User role registry (Admin / Editor RBAC - PII isolated to owner & admin)
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
-      allow delete: if isAdmin();
+      allow get: if isValidId(userId) && isVerifiedUser() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(userId) && isVerifiedUser() && (
+        isAdmin() ||
+        (request.auth.uid == userId && incoming().role == 'member')
+      );
+      allow update: if isValidId(userId) && isVerifiedUser() && (
+        isAdmin() ||
+        (request.auth.uid == userId && incoming().role == existing().role)
+      );
+      allow delete: if isValidId(userId) && isAdmin();
+    }
+
+    // Student Member Profiles (Private PII + XP + Persisted SOC Simulation States)
+    match /member_profiles/{userId} {
+      allow get: if isValidId(userId) && isVerifiedUser() && (request.auth.uid == userId || isAdmin());
+      allow list: if isVerifiedUser() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isValidId(userId) &&
+        isVerifiedUser() &&
+        request.auth.uid == userId &&
+        incoming().uid == request.auth.uid &&
+        isValidMemberProfile(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(userId) &&
+        isVerifiedUser() &&
+        isValidMemberProfile(incoming()) && (
+          isAdmin() ||
+          (
+            request.auth.uid == userId &&
+            incoming().uid == existing().uid &&
+            incoming().createdAt == existing().createdAt &&
+            incoming().updatedAt == request.time &&
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'profileName', 'callsign', 'track', 'xp', 'rank',
+              'completedModules', 'moduleStates', 'solvedFlags', 'achievements', 'updatedAt'
+            ])
+          )
+        );
+      allow delete: if isValidId(userId) && (isAdmin() || (isVerifiedUser() && request.auth.uid == userId));
+    }
+
+    // Public Club Leaderboard (Non-PII standings only)
+    match /leaderboard/{userId} {
+      allow get: if isValidId(userId);
+      allow list: if resource.data.xp >= 0;
+      allow create: if isValidId(userId) &&
+        isVerifiedUser() &&
+        request.auth.uid == userId &&
+        incoming().uid == request.auth.uid &&
+        isValidLeaderboardEntry(incoming()) &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(userId) &&
+        isVerifiedUser() &&
+        isValidLeaderboardEntry(incoming()) && (
+          isAdmin() ||
+          (
+            request.auth.uid == userId &&
+            incoming().uid == existing().uid &&
+            incoming().updatedAt == request.time &&
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'profileName', 'callsign', 'track', 'xp', 'rank',
+              'solvedCount', 'flagsCount', 'updatedAt'
+            ])
+          )
+        );
+      allow delete: if isValidId(userId) && (isAdmin() || (isVerifiedUser() && request.auth.uid == userId));
     }
 
     // Public club information: anyone can read; editors & admins can modify
@@ -60,12 +197,10 @@ service cloud.firestore {
       allow write: if isEditor();
     }
 
-    // Cadet recruitment applications
+    // Cadet recruitment applications (strict pending validation on create, editor-only read/manage)
     match /recruits/{recruitId} {
-      // Prospective members can submit their application
-      allow create: if true;
-      // Only club leadership and editors can review applications
-      allow read, update, delete: if isEditor();
+      allow create: if isValidId(recruitId) && isValidRecruitSubmission(incoming());
+      allow get, list, update, delete: if isEditor();
     }
   }
 }

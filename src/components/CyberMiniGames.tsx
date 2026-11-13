@@ -39,9 +39,12 @@ import {
   Copy,
   Check,
   Clock,
-  Network
+  Network,
+  Cloud,
+  UserCheck
 } from 'lucide-react';
 import { MiniGameId, WarRoomModuleId } from '../types';
+import { useMember } from '../context/MemberContext';
 
 interface CyberMiniGamesProps {
   onGameComplete?: (gameId: MiniGameId, score: number) => void;
@@ -117,17 +120,24 @@ const playCyberSound = (type: 'success' | 'error' | 'click' | 'powerup' | 'alarm
 };
 
 export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, onUnlockFlag }) => {
+  const {
+    memberProfile,
+    firebaseUser,
+    effectiveXp,
+    effectiveCompletedModules,
+    effectiveRank,
+    syncStatus,
+    setIsDashboardOpen,
+    completeWarRoomModule,
+    resetWarRoomProgress,
+  } = useMember();
+
   const [activeModule, setActiveModule] = useState<WarRoomModuleId>('siem-forensics');
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [totalXp, setTotalXp] = useState(0);
-  const [completedModules, setCompletedModules] = useState<Record<WarRoomModuleId, boolean>>({
-    'siem-forensics': false,
-    'web-exploit-chain': false,
-    'memory-malware': false,
-    'smart-contract': false,
-    'binary-rop': false,
-  });
   const [sysUtcTime, setSysUtcTime] = useState('');
+
+  const totalXp = effectiveXp;
+  const completedModules = effectiveCompletedModules;
 
   // Live SOC UTC Clock
   useEffect(() => {
@@ -140,38 +150,8 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
     return () => clearInterval(interval);
   }, []);
 
-  // Load state from localStorage if available
-  useEffect(() => {
-    try {
-      const savedXp = localStorage.getItem('cybernetics_warroom_xp');
-      const savedComp = localStorage.getItem('cybernetics_warroom_completed');
-      if (savedXp) setTotalXp(parseInt(savedXp, 10));
-      if (savedComp) {
-        const parsed = JSON.parse(savedComp);
-        setCompletedModules(prev => ({ ...prev, ...parsed }));
-      }
-    } catch {
-      // Local storage fallback
-    }
-  }, []);
-
   const markModuleCompleted = (modId: WarRoomModuleId, xpEarned: number) => {
-    setCompletedModules(prev => {
-      const next = { ...prev, [modId]: true };
-      try {
-        localStorage.setItem('cybernetics_warroom_completed', JSON.stringify(next));
-      } catch {}
-      return next;
-    });
-
-    setTotalXp(prev => {
-      const nextXp = prev + xpEarned;
-      try {
-        localStorage.setItem('cybernetics_warroom_xp', nextXp.toString());
-      } catch {}
-      return nextXp;
-    });
-
+    void completeWarRoomModule(modId, xpEarned);
     playCyberSound('success', soundEnabled);
 
     if (onGameComplete) {
@@ -179,7 +159,9 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
     }
 
     // Check if all completed
-    const allDone = Object.keys(completedModules).every(k => k === modId || completedModules[k as WarRoomModuleId]);
+    const allDone = (Object.keys(completedModules) as WarRoomModuleId[]).every(
+      k => k === modId || completedModules[k]
+    );
     if (allDone && onUnlockFlag) {
       onUnlockFlag('CYBERNETICS{SOC_TIER3_WAR_ROOM_DIRECTOR_2025}');
     }
@@ -217,15 +199,43 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Member Profile & Cloud Firestore Persistence Trigger */}
+            <button
+              onClick={() => setIsDashboardOpen(true)}
+              className="flex items-center gap-2 bg-[#050b14] hover:bg-slate-900 px-3 py-1 rounded-lg border border-cyan-700/50 text-xs font-mono transition-colors cursor-pointer"
+              title="Open Member Dashboard & Cloud Firestore Sync"
+            >
+              <Cloud className={`w-3.5 h-3.5 ${firebaseUser && memberProfile ? 'text-emerald-400' : 'text-slate-400'}`} />
+              {firebaseUser && memberProfile ? (
+                <>
+                  <span className="text-white font-bold">{memberProfile.profileName}</span>
+                  <span className="text-slate-600">·</span>
+                  <span className="text-cyan-300">{effectiveRank.title}</span>
+                  <span className="text-[10px] text-emerald-400 hidden sm:inline">
+                    ({syncStatus === 'syncing' ? 'Syncing...' : 'Firestore Synced'})
+                  </span>
+                </>
+              ) : (
+                <span className="text-cyan-300 font-semibold flex items-center gap-1">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>Sign In to Save Progress</span>
+                </span>
+              )}
+            </button>
+
             {/* Clearance & XP */}
-            <div className="flex items-center gap-2 bg-[#050b14] px-3 py-1 rounded-lg border border-slate-800 text-xs font-mono">
+            <button
+              onClick={() => setIsDashboardOpen(true)}
+              className="flex items-center gap-2 bg-[#050b14] hover:bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-xs font-mono transition-colors cursor-pointer"
+              title="View Earned XP & Rank in Member Dashboard"
+            >
               <Trophy className="w-3.5 h-3.5 text-amber-400" />
               <span className="text-slate-400">Clearance XP:</span>
               <span className="font-bold text-amber-300">{totalXp} XP</span>
               <span className="text-slate-600">|</span>
               <span className="text-cyan-400 font-semibold">{solvedCount}/5 Mitigated</span>
-            </div>
+            </button>
 
             {/* Sound Toggle */}
             <button
@@ -242,16 +252,7 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
             {/* Reset */}
             <button
               onClick={() => {
-                localStorage.removeItem('cybernetics_warroom_xp');
-                localStorage.removeItem('cybernetics_warroom_completed');
-                setTotalXp(0);
-                setCompletedModules({
-                  'siem-forensics': false,
-                  'web-exploit-chain': false,
-                  'memory-malware': false,
-                  'smart-contract': false,
-                  'binary-rop': false,
-                });
+                void resetWarRoomProgress();
                 playCyberSound('click', soundEnabled);
               }}
               className="px-2.5 py-1 rounded-lg bg-[#050b14] hover:bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-300 text-xs font-mono transition-colors cursor-pointer"

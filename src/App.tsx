@@ -5,9 +5,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { ClubDataProvider } from './context/ClubDataContext';
-import { ThemeProvider, useSeasonalTheme } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { MemberProvider, useMember } from './context/MemberContext';
+import { TelemetryProvider } from './context/TelemetryContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { LiveTelemetryWidget, LiveFeedDrawer } from './components/LiveTelemetryWidget';
 import { AboutSection } from './components/AboutSection';
 import { Tracks } from './components/Tracks';
 import { CyberMiniGames } from './components/CyberMiniGames';
@@ -21,14 +24,17 @@ import { LeadershipSection } from './components/LeadershipSection';
 import { JoinModal } from './components/JoinModal';
 import { ShareModal } from './components/ShareModal';
 import { AdminPortalModal } from './components/AdminPortalModal';
+import { MemberDashboardModal } from './components/MemberDashboardModal';
 import { ThemeSimulator } from './components/ThemeSimulator';
 import { ThemeAmbientParticles } from './components/ThemeAmbientParticles';
 import { Footer } from './components/Footer';
+
 import { TrackId } from './types';
 import { TERMINAL_EASTER_EGG } from './data/clubData';
 
-
 function MainApp() {
+  const { submitCtfFlag, memberProfile } = useMember();
+
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -62,12 +68,14 @@ function MainApp() {
   const handleSolveFlag = (flag: string) => {
     setHasSolvedFlag(true);
     setSolvedFlagValue(flag);
+    void submitCtfFlag(flag);
     try {
       localStorage.setItem('cybernetics_flag', flag);
     } catch {
       // Ignore
     }
   };
+
 
   const handleOpenJoin = (trackId?: TrackId) => {
     setPreselectedTrack(trackId);
@@ -112,6 +120,9 @@ function MainApp() {
           onOpenShare={() => setIsShareModalOpen(true)}
         />
 
+        {/* Live Telemetry: CTFtime API Standing, Discord Feed & Room 105 Countdown */}
+        <LiveTelemetryWidget />
+
         {/* 01. About & Foundations */}
         <AboutSection />
 
@@ -152,13 +163,19 @@ function MainApp() {
       {/* Interactive Theme Simulator & Holiday Debug Panel */}
       <ThemeSimulator />
 
+      {/* Slide-out Club Live Feed & Announcements Drawer */}
+      <LiveFeedDrawer />
+
+      {/* Member Dashboard & Auth Modal */}
+      <MemberDashboardModal />
+
       {/* Join Cyber Netics Onboarding Modal */}
       <JoinModal
         isOpen={isJoinModalOpen}
         onClose={() => setIsJoinModalOpen(false)}
         preselectedTrack={preselectedTrack}
-        hasSolvedFlag={hasSolvedFlag}
-        solvedFlagValue={solvedFlagValue}
+        hasSolvedFlag={hasSolvedFlag || (memberProfile?.solvedFlags?.length ?? 0) > 0}
+        solvedFlagValue={solvedFlagValue || memberProfile?.solvedFlags?.[0] || ''}
       />
 
       {/* Share & QR Code Modal */}
@@ -180,10 +197,16 @@ export default function App() {
   return (
     <ThemeProvider>
       <ClubDataProvider>
-        <MainApp />
+        <TelemetryProvider>
+          <MemberProvider>
+            <MainApp />
+          </MemberProvider>
+        </TelemetryProvider>
       </ClubDataProvider>
     </ThemeProvider>
   );
 }
+
+
 
 

@@ -429,4 +429,4 @@ export const TERMINAL_EASTER_EGG = {
   reward: 'Verified Recruit Badge (Unlocks VIP application priority!)'
 };
 
-export { MEMBER_WRITEUPS, MEMBER_SCRIPTS, OPEN_SOURCE_TOOLS } from './writeupsAndToolsData';
+export { MEMBER_SCRIPTS, OPEN_SOURCE_TOOLS } from './writeupsAndToolsData';
