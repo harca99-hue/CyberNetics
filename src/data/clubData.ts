@@ -2,7 +2,7 @@ import { Track, ClubEvent, BoardMember, ResourceItem, CtfAchievement } from '../
 
 export const CLUB_INFO = {
   name: 'Cyber Netics',
-  university: 'Florida Cyber Innovation & Technology Institute',
+  university: 'Broward College CyberNetics Club',
   established: '2021',
   tagline: 'Defending Florida Systems. Uncovering Exploits. Shaping Cyber Leaders.',
   regularMeeting: 'Every other Friday from 5:00 PM to 7:00 PM — Building 13 Room 105',

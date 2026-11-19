@@ -124,6 +124,15 @@ const cleanRegularMeeting = (meeting?: string): string => {
   return meeting;
 };
 
+// Helper to normalize legacy placeholder institution name to Broward College CyberNetics Club
+const cleanUniversityName = (university?: string): string => {
+  const target = 'Broward College CyberNetics Club';
+  if (!university || university === 'Florida Cyber Innovation & Technology Institute') {
+    return target;
+  }
+  return university;
+};
+
 export const ClubDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<UserRole>('member');
@@ -211,6 +220,7 @@ export const ClubDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setClubSettings(prev => ({ 
           ...prev, 
           ...data,
+          university: cleanUniversityName(data.university),
           regularMeeting: cleanRegularMeeting(data.regularMeeting),
           websiteUrl: cleanWebsiteUrl(data.websiteUrl)
         }));
