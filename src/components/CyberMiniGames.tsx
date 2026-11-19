@@ -41,10 +41,19 @@ import {
   Clock,
   Network,
   Cloud,
-  UserCheck
+  UserCheck,
+  Mail
 } from 'lucide-react';
-import { MiniGameId, WarRoomModuleId } from '../types';
-import { useMember } from '../context/MemberContext';
+import { MiniGameId, WarRoomDifficultyTier, WarRoomModuleId } from '../types';
+import { SOC_INCIDENT_MODULE_IDS, useMember } from '../context/MemberContext';
+import { WAR_ROOM_DEBRIEFS } from '../data/warRoomDebriefs';
+import {
+  GuidedHintToggle,
+  LinuxCliDefenseModule,
+  PacketPhishingTriageModule,
+  PostActionDebrief,
+  PythonAppSecPatcherModule,
+} from './Tier1CadetGames';
 
 interface CyberMiniGamesProps {
   onGameComplete?: (gameId: MiniGameId, score: number) => void;
@@ -119,6 +128,136 @@ const playCyberSound = (type: 'success' | 'error' | 'click' | 'powerup' | 'alarm
   }
 };
 
+interface WarRoomModuleCatalogItem {
+  id: WarRoomModuleId;
+  title: string;
+  category: string;
+  tier: WarRoomDifficultyTier;
+  tierBadge: string;
+  tierBadgeClass: string;
+  severity: string;
+  severityColor: string;
+  mitre: string;
+  icon: React.ComponentType<{ className?: string }>;
+  xp: string;
+  brief: string;
+}
+
+const WAR_ROOM_MODULES: WarRoomModuleCatalogItem[] = [
+  {
+    id: 'python-appsec-patcher',
+    title: 'Python Secure Code Patcher',
+    category: 'AppSec // SAST & Bug Fixing',
+    tier: 'tier1',
+    tierBadge: 'TIER 1: CADET',
+    tierBadgeClass: 'text-emerald-300 bg-emerald-950/60 border-emerald-700/70',
+    severity: 'FOUNDATIONS',
+    severityColor: 'text-emerald-300 bg-emerald-950/40 border-emerald-800/60',
+    mitre: 'CWE-78 / CWE-89',
+    icon: FileCode,
+    xp: '+150 XP',
+    brief: 'Fix os.system Command Injection, SQL Injection, and Hardcoded Credentials and verify against test payloads.'
+  },
+  {
+    id: 'linux-cli-defense',
+    title: 'Linux & CLI Defense Lab',
+    category: 'OS Hardening // Terminal',
+    tier: 'tier1',
+    tierBadge: 'TIER 1: CADET',
+    tierBadgeClass: 'text-emerald-300 bg-emerald-950/60 border-emerald-700/70',
+    severity: 'FOUNDATIONS',
+    severityColor: 'text-emerald-300 bg-emerald-950/40 border-emerald-800/60',
+    mitre: 'CWE-732 / T1053',
+    icon: Terminal,
+    xp: '+150 XP',
+    brief: 'Run ls -la, cat, chmod 600, ps, and kill in an interactive shell to secure secrets and stop a rogue beacon.'
+  },
+  {
+    id: 'packet-phishing-triage',
+    title: 'Packet & Phishing Triage',
+    category: 'Network & Blue Team',
+    tier: 'tier1',
+    tierBadge: 'TIER 1: CADET',
+    tierBadgeClass: 'text-emerald-300 bg-emerald-950/60 border-emerald-700/70',
+    severity: 'FOUNDATIONS',
+    severityColor: 'text-emerald-300 bg-emerald-950/40 border-emerald-800/60',
+    mitre: 'T1566 / T1071',
+    icon: Mail,
+    xp: '+150 XP',
+    brief: 'Spot SPF/DKIM/DMARC spoofing in raw email headers and isolate suspicious outbound traffic ports.'
+  },
+  {
+    id: 'siem-forensics',
+    title: 'SIEM Log Forensics',
+    category: 'Kill Chain Reconstruction',
+    tier: 'tier2',
+    tierBadge: 'TIER 2: SOC ANALYST',
+    tierBadgeClass: 'text-cyan-300 bg-cyan-950/60 border-cyan-700/70',
+    severity: 'SEV-2 HIGH',
+    severityColor: 'text-cyan-300 bg-cyan-950/40 border-cyan-800/60',
+    mitre: 'T1190 / T1059',
+    icon: Activity,
+    xp: '+250 XP',
+    brief: 'Parse raw Sysmon & web events to piece together the attacker trajectory.'
+  },
+  {
+    id: 'memory-malware',
+    title: 'Memory & C2 Triage',
+    category: 'Volatility & PCAP Dissection',
+    tier: 'tier2',
+    tierBadge: 'TIER 2: SOC ANALYST',
+    tierBadgeClass: 'text-cyan-300 bg-cyan-950/60 border-cyan-700/70',
+    severity: 'SEV-2 HIGH',
+    severityColor: 'text-purple-400 bg-purple-950/40 border-purple-800/60',
+    mitre: 'T1055 / T1071',
+    icon: Server,
+    xp: '+250 XP',
+    brief: 'Analyze unbacked process memory, XOR heuristics, and network beacons.'
+  },
+  {
+    id: 'smart-contract',
+    title: 'Smart Contract Audit',
+    category: 'DeFi Reentrancy Flaw',
+    tier: 'tier2',
+    tierBadge: 'TIER 2: SOC ANALYST',
+    tierBadgeClass: 'text-cyan-300 bg-cyan-950/60 border-cyan-700/70',
+    severity: 'SEV-2 HIGH',
+    severityColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+    mitre: 'CWE-841 / SWC-107',
+    icon: Database,
+    xp: '+200 XP',
+    brief: 'Debug vulnerable Solidity liquidity vault and execute reentrant drain.'
+  },
+  {
+    id: 'web-exploit-chain',
+    title: 'Web Exploit Chain',
+    category: 'IDOR + JWT + File Bypass',
+    tier: 'tier3',
+    tierBadge: 'TIER 3: PRINCIPAL',
+    tierBadgeClass: 'text-rose-300 bg-rose-950/60 border-rose-700/70',
+    severity: 'SEV-1 CRITICAL',
+    severityColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+    mitre: 'T1190 / T1078',
+    icon: FileCode,
+    xp: '+250 XP',
+    brief: 'Chain authorization tampering, cryptographic JWT forgery, and MIME bypass.'
+  },
+  {
+    id: 'binary-rop',
+    title: 'Binary Analysis & ROP',
+    category: 'x86_64 Stack & Gadgets',
+    tier: 'tier3',
+    tierBadge: 'TIER 3: PRINCIPAL',
+    tierBadgeClass: 'text-rose-300 bg-rose-950/60 border-rose-700/70',
+    severity: 'SEV-1 CRITICAL',
+    severityColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+    mitre: 'T1203 / CWE-121',
+    icon: Binary,
+    xp: '+300 XP',
+    brief: 'Calculate cyclic buffer offset and chain ROP gadgets to spawn root shell.'
+  },
+];
+
 export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, onUnlockFlag }) => {
   const {
     memberProfile,
@@ -132,7 +271,8 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
     resetWarRoomProgress,
   } = useMember();
 
-  const [activeModule, setActiveModule] = useState<WarRoomModuleId>('siem-forensics');
+  const [tierFilter, setTierFilter] = useState<'all' | WarRoomDifficultyTier>('all');
+  const [activeModule, setActiveModule] = useState<WarRoomModuleId>('python-appsec-patcher');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [sysUtcTime, setSysUtcTime] = useState('');
 
@@ -150,24 +290,45 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
     return () => clearInterval(interval);
   }, []);
 
-  const markModuleCompleted = (modId: WarRoomModuleId, xpEarned: number) => {
-    void completeWarRoomModule(modId, xpEarned);
+  const markModuleCompleted = (modId: WarRoomModuleId, xpEarned: number, bonusFlag?: string) => {
+    const allSocDone =
+      SOC_INCIDENT_MODULE_IDS.includes(modId) &&
+      SOC_INCIDENT_MODULE_IDS.every((k) => k === modId || completedModules[k]);
+    const atomicFlag =
+      bonusFlag || (allSocDone ? 'CYBERNETICS{SOC_TIER3_WAR_ROOM_DIRECTOR_2025}' : undefined);
+
+    void completeWarRoomModule(modId, xpEarned, undefined, atomicFlag);
     playCyberSound('success', soundEnabled);
 
     if (onGameComplete) {
       onGameComplete(modId, xpEarned);
     }
 
-    // Check if all completed
-    const allDone = (Object.keys(completedModules) as WarRoomModuleId[]).every(
-      k => k === modId || completedModules[k]
-    );
-    if (allDone && onUnlockFlag) {
-      onUnlockFlag('CYBERNETICS{SOC_TIER3_WAR_ROOM_DIRECTOR_2025}');
+    if (atomicFlag) {
+      try {
+        localStorage.setItem('cybernetics_flag', atomicFlag);
+      } catch {
+        // Ignore storage restrictions in embedded iframes
+      }
     }
   };
 
-  const solvedCount = Object.values(completedModules).filter(Boolean).length;
+  const visibleModules = WAR_ROOM_MODULES.filter(
+    (m) => tierFilter === 'all' || m.tier === tierFilter
+  );
+
+  const handleSelectTier = (nextTier: 'all' | WarRoomDifficultyTier) => {
+    setTierFilter(nextTier);
+    playCyberSound('click', soundEnabled);
+    if (nextTier !== 'all') {
+      const firstInTier = WAR_ROOM_MODULES.find((m) => m.tier === nextTier);
+      if (firstInTier && WAR_ROOM_MODULES.find((m) => m.id === activeModule)?.tier !== nextTier) {
+        setActiveModule(firstInTier.id);
+      }
+    }
+  };
+
+  const solvedCount = WAR_ROOM_MODULES.filter((m) => completedModules[m.id]).length;
 
   return (
     <section id="games" className="py-24 bg-[#060911] text-slate-100 border-t border-b border-cyan-950/40 relative overflow-hidden">
@@ -234,7 +395,7 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
               <span className="text-slate-400">Clearance XP:</span>
               <span className="font-bold text-amber-300">{totalXp} XP</span>
               <span className="text-slate-600">|</span>
-              <span className="text-cyan-400 font-semibold">{solvedCount}/5 Mitigated</span>
+              <span className="text-cyan-400 font-semibold">{solvedCount}/{WAR_ROOM_MODULES.length} Completed</span>
             </button>
 
             {/* Sound Toggle */}
@@ -264,80 +425,50 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
         </div>
 
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
+        <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 text-xs font-mono mb-4">
             <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-            <span>INCIDENT RESPONSE & CYBER WAR ROOM // TIER-3 SOC SIMULATION</span>
+            <span>CYBER SKILLS RANGE &amp; SOC WAR ROOM // TIERS 1–3</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4 font-mono">
             LIVE WAR ROOM <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">INCIDENT RESPONSE</span>
           </h2>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Step into the role of a Principal Incident Responder and Threat Hunter. Analyze raw telemetries, reconstruct multi-stage exploitation kill chains, inspect injected memory spaces, audit smart contract logic, and construct x86_64 ROP chains.
+            Progress from Tier-1 Cadet Foundations (Python AppSec, Linux Hardening, Packet &amp; Phishing Triage) to Tier-2 SOC Analytics and Tier-3 Principal Exploitation — every module unlocks XP and a real-world remediation debrief.
           </p>
         </div>
 
-        {/* Module Selector - 5 Enterprise SOC Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
+        {/* Difficulty Tiers Filter Bar */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
           {[
-            {
-              id: 'siem-forensics' as WarRoomModuleId,
-              title: 'SIEM Log Forensics',
-              category: 'Kill Chain Reconstruction',
-              severity: 'SEV-1 CRITICAL',
-              severityColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
-              mitre: 'T1190 / T1059',
-              icon: Activity,
-              xp: '+250 XP',
-              brief: 'Parse raw Sysmon & web events to piece together the attacker trajectory.'
-            },
-            {
-              id: 'web-exploit-chain' as WarRoomModuleId,
-              title: 'Web Exploit Chain',
-              category: 'IDOR + JWT + File Bypass',
-              severity: 'SEV-1 CRITICAL',
-              severityColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
-              mitre: 'T1190 / T1078',
-              icon: FileCode,
-              xp: '+250 XP',
-              brief: 'Chain authorization tampering, cryptographic JWT forgery, and MIME bypass.'
-            },
-            {
-              id: 'memory-malware' as WarRoomModuleId,
-              title: 'Memory & C2 Triage',
-              category: 'Volatility & PCAP Dissection',
-              severity: 'SEV-2 HIGH',
-              severityColor: 'text-purple-400 bg-purple-950/40 border-purple-800/60',
-              mitre: 'T1055 / T1071',
-              icon: Server,
-              xp: '+250 XP',
-              brief: 'Analyze unbacked process memory, XOR heuristics, and network beacons.'
-            },
-            {
-              id: 'smart-contract' as WarRoomModuleId,
-              title: 'Smart Contract Audit',
-              category: 'DeFi Reentrancy Flaw',
-              severity: 'SEV-1 CRITICAL',
-              severityColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
-              mitre: 'CWE-841 / SWC-107',
-              icon: Database,
-              xp: '+200 XP',
-              brief: 'Debug vulnerable Solidity liquidity vault and execute reentrant drain.'
-            },
-            {
-              id: 'binary-rop' as WarRoomModuleId,
-              title: 'Binary Analysis & ROP',
-              category: 'x86_64 Stack & Gadgets',
-              severity: 'SEV-1 CRITICAL',
-              severityColor: 'text-cyan-400 bg-cyan-950/40 border-cyan-800/60',
-              mitre: 'T1203 / CWE-121',
-              icon: Binary,
-              xp: '+300 XP',
-              brief: 'Calculate cyclic buffer offset and chain ROP gadgets to spawn root shell.'
-            },
-          ].map((mod) => {
+            { id: 'all' as const, label: `All Modules (${WAR_ROOM_MODULES.length})`, activeClass: 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.2)]' },
+            { id: 'tier1' as const, label: 'Tier 1: Cadet Foundations (3)', activeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]' },
+            { id: 'tier2' as const, label: 'Tier 2: SOC Analyst (3)', activeClass: 'bg-sky-500/20 text-sky-300 border-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.2)]' },
+            { id: 'tier3' as const, label: 'Tier 3: Principal Responder (2)', activeClass: 'bg-rose-500/20 text-rose-300 border-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.2)]' },
+          ].map((pill) => {
+            const isSelected = tierFilter === pill.id;
+            return (
+              <button
+                key={pill.id}
+                type="button"
+                onClick={() => handleSelectTier(pill.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer ${
+                  isSelected
+                    ? pill.activeClass
+                    : 'bg-[#090f1a] text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                }`}
+              >
+                {pill.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Module Selector Cards */}
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${visibleModules.length <= 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-3 mb-8`}>
+          {visibleModules.map((mod) => {
             const Icon = mod.icon;
-            const isDone = completedModules[mod.id];
+            const isDone = Boolean(completedModules[mod.id]);
             const isActive = activeModule === mod.id;
             return (
               <button
@@ -353,17 +484,17 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
                 }`}
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
                     <div className={`p-2 rounded-lg ${isActive ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-800/70 text-slate-400'}`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     {isDone ? (
                       <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded-full">
-                        <CheckCircle2 className="w-3 h-3" /> RESOLVED
+                        <CheckCircle2 className="w-3 h-3" /> COMPLETED
                       </span>
                     ) : (
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${mod.severityColor}`}>
-                        {mod.severity}
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${mod.tierBadgeClass}`}>
+                        {mod.tierBadge}
                       </span>
                     )}
                   </div>
@@ -373,8 +504,8 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] font-mono text-slate-400">
-                  <span className="text-slate-500">MITRE: {mod.mitre}</span>
-                  <span className="text-cyan-300 font-semibold">{mod.xp}</span>
+                  <span className="text-slate-500">{mod.mitre}</span>
+                  <span className="text-amber-300 font-bold">{mod.xp}</span>
                 </div>
               </button>
             );
@@ -383,11 +514,39 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
 
         {/* Active Module Investigation Console */}
         <div className="bg-[#080d19] border border-cyan-900/40 rounded-2xl p-4 sm:p-6 shadow-2xl relative">
-          
+          {activeModule === 'python-appsec-patcher' && (
+            <PythonAppSecPatcherModule
+              soundEnabled={soundEnabled}
+              isCompleted={Boolean(completedModules['python-appsec-patcher'])}
+              onComplete={() => markModuleCompleted('python-appsec-patcher', 150)}
+              playSound={playCyberSound}
+            />
+          )}
+
+          {activeModule === 'linux-cli-defense' && (
+            <LinuxCliDefenseModule
+              soundEnabled={soundEnabled}
+              isCompleted={Boolean(completedModules['linux-cli-defense'])}
+              onComplete={() =>
+                markModuleCompleted('linux-cli-defense', 150, 'CYBERNETICS{chmod_600_cron_h4rd3n3d}')
+              }
+              playSound={playCyberSound}
+            />
+          )}
+
+          {activeModule === 'packet-phishing-triage' && (
+            <PacketPhishingTriageModule
+              soundEnabled={soundEnabled}
+              isCompleted={Boolean(completedModules['packet-phishing-triage'])}
+              onComplete={() => markModuleCompleted('packet-phishing-triage', 150)}
+              playSound={playCyberSound}
+            />
+          )}
+
           {activeModule === 'siem-forensics' && (
             <SiemForensicsModule 
               soundEnabled={soundEnabled} 
-              isCompleted={completedModules['siem-forensics']}
+              isCompleted={Boolean(completedModules['siem-forensics'])}
               onComplete={() => markModuleCompleted('siem-forensics', 250)}
             />
           )}
@@ -395,7 +554,7 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
           {activeModule === 'web-exploit-chain' && (
             <WebExploitChainModule 
               soundEnabled={soundEnabled} 
-              isCompleted={completedModules['web-exploit-chain']}
+              isCompleted={Boolean(completedModules['web-exploit-chain'])}
               onComplete={() => markModuleCompleted('web-exploit-chain', 250)}
             />
           )}
@@ -403,7 +562,7 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
           {activeModule === 'memory-malware' && (
             <MemoryMalwareModule 
               soundEnabled={soundEnabled} 
-              isCompleted={completedModules['memory-malware']}
+              isCompleted={Boolean(completedModules['memory-malware'])}
               onComplete={() => markModuleCompleted('memory-malware', 250)}
             />
           )}
@@ -411,7 +570,7 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
           {activeModule === 'smart-contract' && (
             <SmartContractAuditModule 
               soundEnabled={soundEnabled} 
-              isCompleted={completedModules['smart-contract']}
+              isCompleted={Boolean(completedModules['smart-contract'])}
               onComplete={() => markModuleCompleted('smart-contract', 200)}
             />
           )}
@@ -419,7 +578,7 @@ export const CyberMiniGames: React.FC<CyberMiniGamesProps> = ({ onGameComplete, 
           {activeModule === 'binary-rop' && (
             <BinaryRopModule 
               soundEnabled={soundEnabled} 
-              isCompleted={completedModules['binary-rop']}
+              isCompleted={Boolean(completedModules['binary-rop'])}
               onComplete={() => markModuleCompleted('binary-rop', 300)}
             />
           )}
@@ -698,23 +857,22 @@ const SiemForensicsModule: React.FC<ModuleProps> = ({ soundEnabled, isCompleted,
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowHint(!showHint)}
-            className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-cyan-300 text-xs font-mono inline-flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/50 border border-amber-700/50 text-amber-300 text-xs font-mono inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{showHint ? 'Hide SOC Intel' : 'SOC Intel Brief'}</span>
+            <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+            <span>{showHint ? 'Hide Guided Hint' : 'Guided Hint'}</span>
           </button>
         </div>
       </div>
 
       {showHint && (
-        <div className="p-3.5 rounded-lg bg-cyan-950/40 border border-cyan-800/60 text-xs font-mono text-cyan-200/90 space-y-1">
-          <div className="font-bold text-cyan-300 flex items-center gap-1">
-            <ShieldAlert className="w-3.5 h-3.5" /> THREAT INTEL BULLETIN:
+        <div className="p-3.5 rounded-lg bg-amber-950/25 border border-amber-700/50 text-xs font-mono text-amber-100/90 space-y-1">
+          <div className="font-bold text-amber-300 flex items-center gap-1">
+            <ShieldAlert className="w-3.5 h-3.5" /> GUIDED HINT // SIEM KILL CHAIN:
           </div>
-          <p>1. Look for command injection attempts on HTTP endpoints (e.g. semicolon/bash invocation).</p>
-          <p>2. Persistence in Linux often leverages scheduled cron entries in `/etc/crontab`.</p>
-          <p>3. Sysmon Event ID 10 flags process memory access; look for malicious handles opened to `lsass.exe`.</p>
-          <p>4. Exfiltration involves outbound file staging or large transfers to unfamiliar external IPs.</p>
+          {WAR_ROOM_DEBRIEFS['siem-forensics'].guidedHints.map((h, i) => (
+            <p key={i}><span className="text-amber-400 font-bold">{i + 1}.</span> {h}</p>
+          ))}
         </div>
       )}
 
@@ -960,6 +1118,8 @@ const SiemForensicsModule: React.FC<ModuleProps> = ({ soundEnabled, isCompleted,
           </button>
         </div>
       </div>
+
+      <PostActionDebrief moduleId="siem-forensics" isCompleted={isCompleted} />
     </div>
   );
 };
@@ -1127,8 +1287,9 @@ EXPLOIT_STATUS=ROOT_COMPROMISED`);
           </p>
         </div>
 
-        {/* Chain Stage Pills */}
-        <div className="flex items-center gap-2">
+        {/* Chain Stage Pills & Guided Hint */}
+        <div className="flex flex-wrap items-center gap-2">
+          <GuidedHintToggle hints={WAR_ROOM_DEBRIEFS['web-exploit-chain'].guidedHints} />
           {[
             { num: 1 as const, title: '1. IDOR' },
             { num: 2 as const, title: '2. JWT Forgery' },
@@ -1419,6 +1580,8 @@ Waiting for polyglot transmission to trigger remote command execution...`}
           </div>
         </div>
       )}
+
+      <PostActionDebrief moduleId="web-exploit-chain" isCompleted={isCompleted} />
     </div>
   );
 };
@@ -1479,32 +1642,35 @@ const MemoryMalwareModule: React.FC<ModuleProps> = ({ soundEnabled, isCompleted,
           </p>
         </div>
 
-        {/* View Switcher Tabs */}
-        <div className="flex items-center gap-1.5 bg-[#050914] p-1 rounded-lg border border-slate-800 font-mono text-xs">
-          <button
-            onClick={() => setActiveTab('volatility')}
-            className={`px-3 py-1.5 rounded-md cursor-pointer ${
-              activeTab === 'volatility' ? 'bg-purple-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            1. Volatility Tree
-          </button>
-          <button
-            onClick={() => setActiveTab('hex-strings')}
-            className={`px-3 py-1.5 rounded-md cursor-pointer ${
-              activeTab === 'hex-strings' ? 'bg-purple-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            2. XOR Memory Strings
-          </button>
-          <button
-            onClick={() => setActiveTab('pcap')}
-            className={`px-3 py-1.5 rounded-md cursor-pointer ${
-              activeTab === 'pcap' ? 'bg-purple-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            3. PCAP & Containment
-          </button>
+        {/* View Switcher Tabs & Guided Hint */}
+        <div className="flex flex-wrap items-center gap-2">
+          <GuidedHintToggle hints={WAR_ROOM_DEBRIEFS['memory-malware'].guidedHints} />
+          <div className="flex items-center gap-1.5 bg-[#050914] p-1 rounded-lg border border-slate-800 font-mono text-xs">
+            <button
+              onClick={() => setActiveTab('volatility')}
+              className={`px-3 py-1.5 rounded-md cursor-pointer ${
+                activeTab === 'volatility' ? 'bg-purple-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              1. Volatility Tree
+            </button>
+            <button
+              onClick={() => setActiveTab('hex-strings')}
+              className={`px-3 py-1.5 rounded-md cursor-pointer ${
+                activeTab === 'hex-strings' ? 'bg-purple-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              2. XOR Memory Strings
+            </button>
+            <button
+              onClick={() => setActiveTab('pcap')}
+              className={`px-3 py-1.5 rounded-md cursor-pointer ${
+                activeTab === 'pcap' ? 'bg-purple-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              3. PCAP & Containment
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1704,6 +1870,8 @@ const MemoryMalwareModule: React.FC<ModuleProps> = ({ soundEnabled, isCompleted,
           </div>
         </div>
       )}
+
+      <PostActionDebrief moduleId="memory-malware" isCompleted={isCompleted} />
     </div>
   );
 };
@@ -1801,7 +1969,8 @@ const SmartContractAuditModule: React.FC<ModuleProps> = ({ soundEnabled, isCompl
           </p>
         </div>
 
-        <div className="flex items-center gap-3 font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
+          <GuidedHintToggle hints={WAR_ROOM_DEBRIEFS['smart-contract'].guidedHints} />
           <div className="bg-[#050914] px-3 py-1.5 rounded-lg border border-slate-800">
             <span className="text-slate-400">Vault Balance: </span>
             <span className="text-emerald-400 font-bold">{vaultBalance} ETH</span>
@@ -1923,6 +2092,8 @@ const SmartContractAuditModule: React.FC<ModuleProps> = ({ soundEnabled, isCompl
           )}
         </div>
       </div>
+
+      <PostActionDebrief moduleId="smart-contract" isCompleted={isCompleted} />
     </div>
   );
 };
@@ -2066,6 +2237,8 @@ Consider: 'sub rsp, 0x40' allocates 64 bytes for the buffer, plus 8 bytes for x8
             Deconstruct the x86_64 stack frame layout, calculate cyclic offset to the saved instruction pointer (RIP), and chain gadget primitives to defeat NX and spawn a root shell.
           </p>
         </div>
+
+        <GuidedHintToggle hints={WAR_ROOM_DEBRIEFS['binary-rop'].guidedHints} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -2224,6 +2397,8 @@ Consider: 'sub rsp, 0x40' allocates 64 bytes for the buffer, plus 8 bytes for x8
           </div>
         </div>
       </div>
+
+      <PostActionDebrief moduleId="binary-rop" isCompleted={isCompleted} />
     </div>
   );
 };

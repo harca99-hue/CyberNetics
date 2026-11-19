@@ -126,17 +126,52 @@ export const KNOWN_CTF_FLAGS: CtfFlagMeta[] = [
     title: 'Tier-3 War Room Director',
     category: 'Full Spectrum SOC',
     xpBonus: 200,
-    description: 'Mitigated all 5 SOC Incident Response War Room simulations.',
+    description: 'Mitigated all 5 Tier-2 & Tier-3 SOC Incident Response simulations.',
+  },
+  {
+    flag: 'CYBERNETICS{chmod_600_cron_h4rd3n3d}',
+    id: 'FLAG_LINUX_DEFENSE_LAB',
+    title: 'Linux Hardening Cadet Flag',
+    category: 'OS Hardening',
+    xpBonus: 50,
+    description: 'Secured exposed .env_backup permissions and neutralized the rogue C2 beacon in Linux Defense Lab.',
   },
 ];
 
+export const TIER1_MODULE_IDS: WarRoomModuleId[] = [
+  'python-appsec-patcher',
+  'linux-cli-defense',
+  'packet-phishing-triage',
+];
+
+export const SOC_INCIDENT_MODULE_IDS: WarRoomModuleId[] = [
+  'siem-forensics',
+  'web-exploit-chain',
+  'memory-malware',
+  'smart-contract',
+  'binary-rop',
+];
+
 export const DEFAULT_COMPLETED_MODULES: Record<WarRoomModuleId, boolean> = {
+  'python-appsec-patcher': false,
+  'linux-cli-defense': false,
+  'packet-phishing-triage': false,
   'siem-forensics': false,
   'web-exploit-chain': false,
   'memory-malware': false,
   'smart-contract': false,
   'binary-rop': false,
 };
+
+export const ALL_TRACK_IDS: TrackId[] = [
+  'offensive',
+  'defensive',
+  'reverse-engineering',
+  'cloud-sec',
+  'crypto',
+];
+
+export const getTrackTryoutStateKey = (trackId: TrackId): string => `track-tryout-${trackId}`;
 
 export interface RegistrationPayload {
   profileName: string;
@@ -161,16 +196,24 @@ interface MemberContextType {
   // Effective War Room State (Firestore if signed in, session state before sign-in)
   effectiveXp: number;
   effectiveCompletedModules: Record<WarRoomModuleId, boolean>;
-  effectiveModuleStates: Partial<Record<WarRoomModuleId, ModuleProgressState>>;
+  effectiveModuleStates: Partial<Record<string, ModuleProgressState>>;
+  effectiveCompletedTryouts: Record<TrackId, boolean>;
   effectiveRank: RankTierInfo;
 
   // Auth & Registration
   signInWithGoogleAndRegister: (pendingProfile?: RegistrationPayload) => Promise<void>;
   registerOrUpdateProfile: (payload: RegistrationPayload) => Promise<void>;
+  updateMemberTrack: (trackId: TrackId) => Promise<void>;
   signOutMember: () => Promise<void>;
 
   // Persisted Game & CTF Actions
-  completeWarRoomModule: (modId: WarRoomModuleId, xpEarned: number, stageNotes?: string) => Promise<void>;
+  completeWarRoomModule: (
+    modId: WarRoomModuleId,
+    xpEarned: number,
+    stageNotes?: string,
+    autoUnlockFlag?: string
+  ) => Promise<void>;
+  completeTrackTryout: (trackId: TrackId, xpEarned?: number) => Promise<void>;
   saveModuleStageNotes: (modId: WarRoomModuleId, stageNotes: string) => Promise<void>;
   submitCtfFlag: (flagInput: string) => Promise<{ ok: boolean; message: string; xpAwarded?: number }>;
   resetWarRoomProgress: () => Promise<void>;
@@ -202,7 +245,7 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [sessionCompletedModules, setSessionCompletedModules] = useState<Record<WarRoomModuleId, boolean>>(
     DEFAULT_COMPLETED_MODULES
   );
-  const [sessionModuleStates, setSessionModuleStates] = useState<Partial<Record<WarRoomModuleId, ModuleProgressState>>>({});
+  const [sessionModuleStates, setSessionModuleStates] = useState<Partial<Record<string, ModuleProgressState>>>({});
   const [sessionFlags, setSessionFlags] = useState<string[]>([]);
 
   // Store pending registration input if user clicks Google Sign-In with a chosen profile name
@@ -384,7 +427,7 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...DEFAULT_COMPLETED_MODULES,
         ...sessionCompletedModules,
       };
-      const mergedStates: Partial<Record<WarRoomModuleId, ModuleProgressState>> = {
+      const mergedStates: Partial<Record<string, ModuleProgressState>> = {
         ...sessionModuleStates,
       };
       const mergedFlags = Array.from(new Set(sessionFlags));
@@ -397,8 +440,14 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           initialAchievements.push(`WAR_ROOM_${modId.toUpperCase()}`);
         }
       });
-      if (Object.values(mergedModules).every(Boolean)) {
+      if (TIER1_MODULE_IDS.every((id) => mergedModules[id])) {
+        initialAchievements.push('CADET_FOUNDATIONS_GRADUATE');
+      }
+      if (SOC_INCIDENT_MODULE_IDS.every((id) => mergedModules[id])) {
         initialAchievements.push('SOC_WAR_ROOM_DIRECTOR');
+      }
+      if ((Object.keys(DEFAULT_COMPLETED_MODULES) as WarRoomModuleId[]).every((id) => mergedModules[id])) {
+        initialAchievements.push('FULL_SPECTRUM_OPERATOR');
       }
 
       await writeProfileAndLeaderboard(
@@ -483,6 +532,26 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [firebaseUser, memberProfile, createInitialProfileInFirestore, writeProfileAndLeaderboard]
   );
 
+  const updateMemberTrack = useCallback(
+    async (trackId: TrackId) => {
+      if (!firebaseUser || !memberProfile) {
+        throw new Error('Please sign in and create a member profile to join a track directly.');
+      }
+      if (memberProfile.track === trackId) return;
+
+      await writeProfileAndLeaderboard(
+        firebaseUser,
+        {
+          ...memberProfile,
+          track: trackId,
+        },
+        false,
+        memberProfile.createdAt
+      );
+    },
+    [firebaseUser, memberProfile, writeProfileAndLeaderboard]
+  );
+
   const signOutMember = useCallback(async () => {
     await signOut(auth);
     setMemberProfile(null);
@@ -490,9 +559,13 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSyncStatus('idle');
   }, []);
 
-  // Persist War Room simulation completion to Firestore
+  // Persist War Room simulation completion to Firestore (with optional atomic bonus flag unlock)
   const completeWarRoomModule = useCallback(
-    async (modId: WarRoomModuleId, xpEarned: number, stageNotes?: string) => {
+    async (modId: WarRoomModuleId, xpEarned: number, stageNotes?: string, autoUnlockFlag?: string) => {
+      const matchedFlag = autoUnlockFlag
+        ? KNOWN_CTF_FLAGS.find((f) => f.flag === autoUnlockFlag.trim())
+        : undefined;
+
       if (firebaseUser && memberProfile) {
         const alreadyDone = Boolean(memberProfile.completedModules[modId]);
         const nextCompleted: Record<WarRoomModuleId, boolean> = {
@@ -509,14 +582,30 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           },
         };
 
-        const xpDelta = alreadyDone ? 0 : xpEarned;
+        const flagAlreadySolved = matchedFlag ? memberProfile.solvedFlags.includes(matchedFlag.flag) : true;
+        const flagBonusXp = matchedFlag && !flagAlreadySolved ? matchedFlag.xpBonus : 0;
+        const nextFlags =
+          matchedFlag && !flagAlreadySolved
+            ? [...memberProfile.solvedFlags, matchedFlag.flag]
+            : memberProfile.solvedFlags;
+
+        const xpDelta = (alreadyDone ? 0 : xpEarned) + flagBonusXp;
         const nextXp = memberProfile.xp + xpDelta;
         const nextRank = calculateRankInfo(nextXp).title;
 
         const nextAchievements = new Set(memberProfile.achievements);
         nextAchievements.add(`WAR_ROOM_${modId.toUpperCase()}`);
-        if (Object.values(nextCompleted).every(Boolean)) {
+        if (matchedFlag) {
+          nextAchievements.add(matchedFlag.id);
+        }
+        if (TIER1_MODULE_IDS.every((id) => nextCompleted[id])) {
+          nextAchievements.add('CADET_FOUNDATIONS_GRADUATE');
+        }
+        if (SOC_INCIDENT_MODULE_IDS.every((id) => nextCompleted[id])) {
           nextAchievements.add('SOC_WAR_ROOM_DIRECTOR');
+        }
+        if ((Object.keys(DEFAULT_COMPLETED_MODULES) as WarRoomModuleId[]).every((id) => nextCompleted[id])) {
+          nextAchievements.add('FULL_SPECTRUM_OPERATOR');
         }
 
         await writeProfileAndLeaderboard(
@@ -527,6 +616,7 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             rank: nextRank,
             completedModules: nextCompleted,
             moduleStates: nextStates,
+            solvedFlags: nextFlags,
             achievements: Array.from(nextAchievements),
           },
           false,
@@ -535,6 +625,9 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       } else {
         // Guest session state (prompted to sign in to persist in Firestore)
         const alreadyDone = Boolean(sessionCompletedModules[modId]);
+        const flagAlreadySolved = matchedFlag ? sessionFlags.includes(matchedFlag.flag) : true;
+        const flagBonusXp = matchedFlag && !flagAlreadySolved ? matchedFlag.xpBonus : 0;
+
         setSessionCompletedModules((prev) => ({ ...prev, [modId]: true }));
         setSessionModuleStates((prev) => ({
           ...prev,
@@ -545,12 +638,75 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             stageNotes: stageNotes || 'Mitigated (Session)',
           },
         }));
+        if (matchedFlag && !flagAlreadySolved) {
+          setSessionFlags((prev) => [...prev, matchedFlag.flag]);
+        }
+        const totalDelta = (alreadyDone ? 0 : xpEarned) + flagBonusXp;
+        if (totalDelta > 0) {
+          setSessionXp((prev) => prev + totalDelta);
+        }
+      }
+    },
+    [firebaseUser, memberProfile, sessionCompletedModules, sessionFlags, writeProfileAndLeaderboard]
+  );
+
+  // Persist 2-Minute Track Tryout completion (+100 XP each) without altering War Room 0..8 solvedCount
+  const completeTrackTryout = useCallback(
+    async (trackId: TrackId, xpEarned = 100) => {
+      const stateKey = getTrackTryoutStateKey(trackId);
+      const achievementId = `TRACK_TRYOUT_${trackId.toUpperCase()}`;
+
+      if (firebaseUser && memberProfile) {
+        const alreadyDone = Boolean(memberProfile.moduleStates?.[stateKey]?.completed);
+        const nextStates: Partial<Record<string, ModuleProgressState>> = {
+          ...memberProfile.moduleStates,
+          [stateKey]: {
+            completed: true,
+            xpEarned: alreadyDone ? (memberProfile.moduleStates?.[stateKey]?.xpEarned ?? xpEarned) : xpEarned,
+            completedAt: memberProfile.moduleStates?.[stateKey]?.completedAt || new Date().toISOString(),
+            stageNotes: 'Track Tryout Verified',
+          },
+        };
+
+        const xpDelta = alreadyDone ? 0 : xpEarned;
+        const nextXp = memberProfile.xp + xpDelta;
+        const nextRank = calculateRankInfo(nextXp).title;
+
+        const nextAchievements = new Set(memberProfile.achievements);
+        nextAchievements.add(achievementId);
+        if (ALL_TRACK_IDS.every((tid) => Boolean(nextStates[getTrackTryoutStateKey(tid)]?.completed))) {
+          nextAchievements.add('MULTI_TRACK_EXPLORER');
+        }
+
+        await writeProfileAndLeaderboard(
+          firebaseUser,
+          {
+            ...memberProfile,
+            xp: nextXp,
+            rank: nextRank,
+            moduleStates: nextStates,
+            achievements: Array.from(nextAchievements),
+          },
+          false,
+          memberProfile.createdAt
+        );
+      } else {
+        const alreadyDone = Boolean(sessionModuleStates[stateKey]?.completed);
+        setSessionModuleStates((prev) => ({
+          ...prev,
+          [stateKey]: {
+            completed: true,
+            xpEarned,
+            completedAt: new Date().toISOString(),
+            stageNotes: 'Track Tryout Verified (Session)',
+          },
+        }));
         if (!alreadyDone) {
           setSessionXp((prev) => prev + xpEarned);
         }
       }
     },
-    [firebaseUser, memberProfile, sessionCompletedModules, writeProfileAndLeaderboard]
+    [firebaseUser, memberProfile, sessionModuleStates, writeProfileAndLeaderboard]
   );
 
   // Save intermediate stage notes for an active simulation
@@ -558,7 +714,7 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async (modId: WarRoomModuleId, stageNotes: string) => {
       if (firebaseUser && memberProfile) {
         const prevModState = memberProfile.moduleStates[modId];
-        const nextStates: Partial<Record<WarRoomModuleId, ModuleProgressState>> = {
+        const nextStates: Partial<Record<string, ModuleProgressState>> = {
           ...memberProfile.moduleStates,
           [modId]: {
             completed: prevModState?.completed ?? Boolean(memberProfile.completedModules[modId]),
@@ -652,27 +808,43 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [firebaseUser, memberProfile, sessionFlags, writeProfileAndLeaderboard]
   );
 
-  // Reset War Room Simulations in Firestore
+  // Reset War Room Simulations in Firestore (preserves verified CTF flags & completed track tryouts)
   const resetWarRoomProgress = useCallback(async () => {
     if (firebaseUser && memberProfile) {
-      // Subtract War Room simulation XP while keeping verified CTF flag bonus XP
       const flagBonusXp = memberProfile.solvedFlags.reduce((sum, flagStr) => {
         const meta = KNOWN_CTF_FLAGS.find((f) => f.flag === flagStr);
         return sum + (meta?.xpBonus || 0);
       }, 0);
-      const nextRank = calculateRankInfo(flagBonusXp).title;
+
+      const preservedStates: Partial<Record<string, ModuleProgressState>> = {};
+      let tryoutBonusXp = 0;
+      ALL_TRACK_IDS.forEach((tid) => {
+        const key = getTrackTryoutStateKey(tid);
+        const st = memberProfile.moduleStates?.[key];
+        if (st?.completed) {
+          preservedStates[key] = st;
+          tryoutBonusXp += st.xpEarned || 100;
+        }
+      });
+
+      const nextXp = flagBonusXp + tryoutBonusXp;
+      const nextRank = calculateRankInfo(nextXp).title;
       const filteredAchievements = memberProfile.achievements.filter(
-        (a) => !a.startsWith('WAR_ROOM_') && a !== 'SOC_WAR_ROOM_DIRECTOR'
+        (a) =>
+          !a.startsWith('WAR_ROOM_') &&
+          a !== 'SOC_WAR_ROOM_DIRECTOR' &&
+          a !== 'CADET_FOUNDATIONS_GRADUATE' &&
+          a !== 'FULL_SPECTRUM_OPERATOR'
       );
 
       await writeProfileAndLeaderboard(
         firebaseUser,
         {
           ...memberProfile,
-          xp: flagBonusXp,
+          xp: nextXp,
           rank: nextRank,
           completedModules: { ...DEFAULT_COMPLETED_MODULES },
-          moduleStates: {},
+          moduleStates: preservedStates,
           achievements: filteredAchievements,
         },
         false,
@@ -680,20 +852,37 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       );
     } else {
       setSessionCompletedModules({ ...DEFAULT_COMPLETED_MODULES });
-      setSessionModuleStates({});
+      const preservedStates: Partial<Record<string, ModuleProgressState>> = {};
+      let tryoutBonusXp = 0;
+      ALL_TRACK_IDS.forEach((tid) => {
+        const key = getTrackTryoutStateKey(tid);
+        const st = sessionModuleStates[key];
+        if (st?.completed) {
+          preservedStates[key] = st;
+          tryoutBonusXp += st.xpEarned || 100;
+        }
+      });
+      setSessionModuleStates(preservedStates);
       const flagBonusXp = sessionFlags.reduce((sum, flagStr) => {
         const meta = KNOWN_CTF_FLAGS.find((f) => f.flag === flagStr);
         return sum + (meta?.xpBonus || 0);
       }, 0);
-      setSessionXp(flagBonusXp);
+      setSessionXp(flagBonusXp + tryoutBonusXp);
     }
-  }, [firebaseUser, memberProfile, sessionFlags, writeProfileAndLeaderboard]);
+  }, [firebaseUser, memberProfile, sessionFlags, sessionModuleStates, writeProfileAndLeaderboard]);
 
   const effectiveXp = memberProfile ? memberProfile.xp : sessionXp;
   const effectiveCompletedModules = memberProfile
     ? memberProfile.completedModules
     : sessionCompletedModules;
   const effectiveModuleStates = memberProfile ? memberProfile.moduleStates : sessionModuleStates;
+  const effectiveCompletedTryouts = useMemo<Record<TrackId, boolean>>(() => {
+    const result = {} as Record<TrackId, boolean>;
+    ALL_TRACK_IDS.forEach((tid) => {
+      result[tid] = Boolean(effectiveModuleStates?.[getTrackTryoutStateKey(tid)]?.completed);
+    });
+    return result;
+  }, [effectiveModuleStates]);
   const effectiveRank = useMemo(() => calculateRankInfo(effectiveXp), [effectiveXp]);
 
   const myLeaderboardRank = useMemo(() => {
@@ -720,11 +909,14 @@ export const MemberProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         effectiveXp,
         effectiveCompletedModules,
         effectiveModuleStates,
+        effectiveCompletedTryouts,
         effectiveRank,
         signInWithGoogleAndRegister,
         registerOrUpdateProfile,
+        updateMemberTrack,
         signOutMember,
         completeWarRoomModule,
+        completeTrackTryout,
         saveModuleStageNotes,
         submitCtfFlag,
         resetWarRoomProgress,

@@ -81,12 +81,19 @@ export const OpenSourceToolVaultSection: React.FC = () => {
 
         {/* Quick Spotlight Strip of Essential 6 Tools */}
         <div className="mb-10 p-4 rounded-2xl bg-[#0a101f] border border-cyan-900/40">
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs font-mono">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-800 text-xs font-mono">
             <span className="font-bold text-white flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               CORE OPEN-SOURCE TOOLKIT
             </span>
             <span className="text-slate-500 text-[11px]">VERIFIED FOSS // NO PAYWALLS</span>
+          </div>
+
+          <div className="mb-3.5 p-3 rounded-xl bg-amber-950/25 border border-amber-700/40 flex items-start gap-2.5 text-xs">
+            <Shield className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-amber-100/90 leading-relaxed">
+              <strong className="font-mono text-amber-300">Lab VM Recommended:</strong> Dual-use security tools (Nmap, Gobuster, BloodHound, Hashcat) may trigger host antivirus alerts—install and run them inside your isolated Kali or Ubuntu Lab VM.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { Shield, QrCode, Lock, ChevronRight, Menu, X, Sparkles, Gamepad2, Globe, ExternalLink, Radio, Sliders, Palette, Trophy, UserCheck, Bell } from 'lucide-react';
+import { Shield, QrCode, ChevronRight, Menu, X, Globe, ExternalLink, Radio, Trophy, UserCheck } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
-import { useSeasonalTheme } from '../context/ThemeContext';
 import { useMember } from '../context/MemberContext';
-import { useLiveTelemetry } from '../context/TelemetryContext';
 
 interface NavbarProps {
   onOpenJoin: () => void;
@@ -21,10 +19,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   hasSolvedFlag 
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { clubSettings, isEditor, isAdmin } = useClubData();
-  const { themeConfig, setIsSimulatorOpen } = useSeasonalTheme();
+  const { clubSettings } = useClubData();
   const { memberProfile, firebaseUser, effectiveXp, setIsDashboardOpen } = useMember();
-  const { standing, announcements, setIsFeedDrawerOpen } = useLiveTelemetry();
 
 
   const officialWebsiteUrl = 'https://cybernetics-club.vercel.app';
@@ -63,37 +59,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </>
           )}
 
-          {/* Seasonal / Holiday Theme Active Badge */}
-          <button
-            onClick={() => setIsSimulatorOpen(true)}
-            className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all border cursor-pointer hover:scale-105"
-            style={{
-              backgroundColor: themeConfig.badgeBg,
-              borderColor: themeConfig.borderAccent,
-              color: themeConfig.badgeText,
-            }}
-            title="Active Seasonal Protocol — Click to open Theme Simulator"
-          >
-            <span>{themeConfig.icon}</span>
-            <span className="uppercase">{themeConfig.seasonLabel}</span>
-          </button>
         </div>
 
-        {/* Right: Live Telemetry Feed trigger, Verified recruit indicator & Official Website Link */}
+        {/* Right: Verified recruit indicator & Official Website Link */}
         <div className="flex items-center gap-2.5 ml-auto shrink-0">
-          {/* Live Feed & CTFtime Standing Trigger */}
-          <button
-            id="nav-live-feed-btn"
-            onClick={() => setIsFeedDrawerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-emerald-300 border border-emerald-600/40 hover:border-emerald-400 text-[10px] font-mono font-semibold transition-all cursor-pointer shrink-0"
-            title="Open Club Live Feed, Discord Announcements & Room 105 Countdown"
-          >
-            <Bell className="w-3 h-3 text-emerald-400 animate-pulse" />
-            <span className="hidden sm:inline">Live Feed ({announcements.length})</span>
-            <span className="text-slate-600 hidden md:inline">·</span>
-            <span className="hidden md:inline text-cyan-300">{standing.globalRank}</span>
-          </button>
-
           {hasSolvedFlag && (
             <span className="text-amber-300 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30 shrink-0 text-[10px]">
               CTF_VERIFIED
@@ -208,23 +177,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right: Actions Cluster (Tools & Buttons) */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Theme Engine Simulator Button */}
-            <button
-              onClick={() => setIsSimulatorOpen(true)}
-              className="inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-mono rounded-lg border transition-all whitespace-nowrap shrink-0 cursor-pointer shadow-sm hover:scale-105"
-              style={{
-                backgroundColor: themeConfig.badgeBg,
-                borderColor: themeConfig.borderAccent,
-                color: themeConfig.badgeText,
-              }}
-              title="Open Seasonal Theme Engine & Holiday Simulator"
-            >
-              <span className="text-sm">{themeConfig.icon}</span>
-              <span className="hidden xl:inline font-bold">{themeConfig.name}</span>
-              <span className="xl:hidden font-bold">Theme</span>
-              <Sliders className="w-3 h-3 opacity-70" />
-            </button>
-
             {/* Member Portal / Dashboard Button */}
             <button
               id="nav-member-dashboard-btn"
@@ -382,23 +334,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'Member Dashboard & Login'}
               </span>
             </button>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setIsSimulatorOpen(true);
-              }}
-              className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-mono rounded-lg border transition-all"
-              style={{
-                backgroundColor: themeConfig.badgeBg,
-                borderColor: themeConfig.borderAccent,
-                color: themeConfig.badgeText,
-              }}
-            >
-              <span className="text-base">{themeConfig.icon}</span>
-              <span className="font-bold">Seasonal Theme Engine ({themeConfig.name})</span>
-              <Sliders className="w-3.5 h-3.5 opacity-70" />
-            </button>
-
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

@@ -1,11 +1,8 @@
 import React from 'react';
 import { CTF_ACHIEVEMENTS, CLUB_INFO } from '../data/clubData';
-import { Trophy, Award, Target, ExternalLink, Flag, Flame, CheckCircle2, ShieldAlert, RefreshCw } from 'lucide-react';
-import { useLiveTelemetry } from '../context/TelemetryContext';
+import { Trophy, Award, ExternalLink, Flag, Flame } from 'lucide-react';
 
 export const CTFShowcase: React.FC = () => {
-  const { standing, isFetchingCtftime, refreshCtftime } = useLiveTelemetry();
-
   return (
     <section id="ctf" className="py-20 bg-[#070b14] border-t border-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,17 +23,9 @@ export const CTFShowcase: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-950/50 border border-emerald-700/50 text-xs font-mono">
-              <span className="text-emerald-300 font-bold">{standing.globalRank}</span>
+              <span className="text-emerald-300 font-bold">{CLUB_INFO.ctfGlobalRank}</span>
               <span className="text-slate-600">·</span>
-              <span className="text-slate-300">{standing.ratingPoints} pts</span>
-              <button
-                onClick={() => void refreshCtftime()}
-                disabled={isFetchingCtftime}
-                className="ml-1 text-cyan-400 hover:text-cyan-300 cursor-pointer"
-                title="Refresh CTFtime Telemetry"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isFetchingCtftime ? 'animate-spin' : ''}`} />
-              </button>
+              <span className="text-slate-300">148.42 pts</span>
             </div>
 
             <a

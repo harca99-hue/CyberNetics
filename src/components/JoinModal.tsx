@@ -43,19 +43,22 @@ export const JoinModal: React.FC<JoinModalProps> = ({
   const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
-    if (preselectedTrack && !formData.interestedTracks.includes(preselectedTrack)) {
-      setFormData(prev => ({
-        ...prev,
-        interestedTracks: [...prev.interestedTracks, preselectedTrack],
-      }));
+    if (isOpen) {
+      setSubmittedCard(null);
+      if (preselectedTrack) {
+        setFormData((prev) => ({
+          ...prev,
+          interestedTracks: [preselectedTrack],
+        }));
+      }
     }
     if (hasSolvedFlag) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         solvedFlag: solvedFlagValue || TERMINAL_EASTER_EGG.flag,
       }));
     }
-  }, [preselectedTrack, hasSolvedFlag, solvedFlagValue]);
+  }, [isOpen, preselectedTrack, hasSolvedFlag, solvedFlagValue]);
 
   if (!isOpen) return null;
 

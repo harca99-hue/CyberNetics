@@ -19,6 +19,8 @@ export interface ClubEvent {
   id: string;
   title: string;
   category: 'Workshop' | 'CTF' | 'Competition' | 'Guest Speaker' | 'Social' | 'Conference';
+  eventTypeLabel?: string;
+  secondaryCategories?: ('Workshop' | 'CTF' | 'Competition' | 'Guest Speaker' | 'Social' | 'Conference')[];
   date: string;
   time: string;
   location: string;
@@ -53,7 +55,7 @@ export interface BoardMember {
 export interface ResourceItem {
   id: string;
   title: string;
-  category: 'Platform' | 'Toolkit' | 'Roadmap' | 'Cheatsheet';
+  category: 'Platform' | 'Toolkit';
   description: string;
   url: string;
   tags: string[];
@@ -111,7 +113,17 @@ export interface ClubSettings {
   lastUpdated?: string;
 }
 
-export type WarRoomModuleId = 'siem-forensics' | 'web-exploit-chain' | 'memory-malware' | 'smart-contract' | 'binary-rop';
+export type WarRoomDifficultyTier = 'tier1' | 'tier2' | 'tier3';
+
+export type WarRoomModuleId =
+  | 'python-appsec-patcher'
+  | 'linux-cli-defense'
+  | 'packet-phishing-triage'
+  | 'siem-forensics'
+  | 'web-exploit-chain'
+  | 'memory-malware'
+  | 'smart-contract'
+  | 'binary-rop';
 export type MiniGameId = WarRoomModuleId | 'sqli' | 'phishing' | 'firewall' | 'hashcracker' | 'cipher';
 
 export interface MiniGameProgress {
@@ -202,34 +214,6 @@ export interface OpenSourceTool {
   tags: string[];
 }
 
-export type SeasonalThemeId = 
-  | 'default'
-  | 'halloween'
-  | 'christmas'
-  | 'fourth_of_july'
-  | 'fall'
-  | 'spring'
-  | 'summer'
-  | 'winter';
-
-export interface SeasonalThemeConfig {
-  id: SeasonalThemeId;
-  name: string;
-  seasonLabel: string;
-  icon: string; // Emoji or identifier
-  bannerText: string;
-  tagline: string;
-  dateRangeDescription: string;
-  primaryColor: string; // hex
-  secondaryColor: string; // hex
-  accentGlow: string; // rgba
-  borderAccent: string;
-  badgeBg: string;
-  badgeText: string;
-  particleType?: 'ghosts' | 'snow' | 'fireworks' | 'leaves' | 'petals' | 'sparkles';
-  greetingQuote: string;
-}
-
 export interface ModuleProgressState {
   completed: boolean;
   xpEarned: number;
@@ -246,7 +230,7 @@ export interface MemberGameProfile {
   xp: number;
   rank: string;
   completedModules: Record<WarRoomModuleId, boolean>;
-  moduleStates: Partial<Record<WarRoomModuleId, ModuleProgressState>>;
+  moduleStates: Partial<Record<string, ModuleProgressState>>;
   solvedFlags: string[];
   achievements: string[];
   createdAt?: unknown;

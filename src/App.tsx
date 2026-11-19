@@ -5,12 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { ClubDataProvider } from './context/ClubDataContext';
-import { ThemeProvider } from './context/ThemeContext';
 import { MemberProvider, useMember } from './context/MemberContext';
-import { TelemetryProvider } from './context/TelemetryContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { LiveTelemetryWidget, LiveFeedDrawer } from './components/LiveTelemetryWidget';
 import { AboutSection } from './components/AboutSection';
 import { Tracks } from './components/Tracks';
 import { CyberMiniGames } from './components/CyberMiniGames';
@@ -25,8 +22,6 @@ import { JoinModal } from './components/JoinModal';
 import { ShareModal } from './components/ShareModal';
 import { AdminPortalModal } from './components/AdminPortalModal';
 import { MemberDashboardModal } from './components/MemberDashboardModal';
-import { ThemeSimulator } from './components/ThemeSimulator';
-import { ThemeAmbientParticles } from './components/ThemeAmbientParticles';
 import { Footer } from './components/Footer';
 
 import { TrackId } from './types';
@@ -98,9 +93,6 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans transition-colors duration-500">
-      {/* Dynamic Seasonal & Holiday Ambient Floating Particles */}
-      <ThemeAmbientParticles />
-
       {/* Navigation */}
       <Navbar
         onOpenJoin={() => handleOpenJoin()}
@@ -119,9 +111,6 @@ function MainApp() {
           onScrollToTracks={scrollToTracks}
           onOpenShare={() => setIsShareModalOpen(true)}
         />
-
-        {/* Live Telemetry: CTFtime API Standing, Discord Feed & Room 105 Countdown */}
-        <LiveTelemetryWidget />
 
         {/* 01. About & Foundations */}
         <AboutSection />
@@ -160,12 +149,6 @@ function MainApp() {
         onOpenAdmin={() => setIsAdminModalOpen(true)}
       />
 
-      {/* Interactive Theme Simulator & Holiday Debug Panel */}
-      <ThemeSimulator />
-
-      {/* Slide-out Club Live Feed & Announcements Drawer */}
-      <LiveFeedDrawer />
-
       {/* Member Dashboard & Auth Modal */}
       <MemberDashboardModal />
 
@@ -195,15 +178,11 @@ function MainApp() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <ClubDataProvider>
-        <TelemetryProvider>
-          <MemberProvider>
-            <MainApp />
-          </MemberProvider>
-        </TelemetryProvider>
-      </ClubDataProvider>
-    </ThemeProvider>
+    <ClubDataProvider>
+      <MemberProvider>
+        <MainApp />
+      </MemberProvider>
+    </ClubDataProvider>
   );
 }
 

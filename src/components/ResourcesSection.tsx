@@ -21,7 +21,7 @@ export const ResourcesSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const categories = ['All', 'Platform', 'Toolkit', 'Roadmap', 'Cheatsheet'];
+  const categories: Array<'All' | 'Platform' | 'Toolkit'> = ['All', 'Platform', 'Toolkit'];
 
   // Spotlight platforms for quick access
   const spotlightPlatforms = [
@@ -33,6 +33,8 @@ export const ResourcesSection: React.FC = () => {
     { name: 'HackTheBox', label: 'Penetration Testing', url: 'https://www.hackthebox.com', badge: 'FREE TIER' },
     { name: 'Blue Team Labs', label: 'Defensive DFIR & SIEM', url: 'https://blueteamlabs.online', badge: 'FREE TIER' },
     { name: 'DefendTheWeb', label: 'Interactive Challenges', url: 'https://defendtheweb.net', badge: 'FREE' },
+    { name: 'pwn.college', label: 'Binary & SysSec Labs', url: 'https://pwn.college/', badge: 'FREE' },
+    { name: 'LetsDefend', label: 'SOC & SIEM Simulator', url: 'https://letsdefend.io/', badge: 'FREE TIER' },
   ];
 
   const filteredResources = resources.filter((res) => {
@@ -75,7 +77,7 @@ export const ResourcesSection: React.FC = () => {
                 Instant Practice Platform Dock
               </span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60">
-                8 Core Labs
+                {spotlightPlatforms.length} Core Labs
               </span>
             </div>
             <span className="text-[11px] font-mono text-slate-400">
@@ -83,7 +85,7 @@ export const ResourcesSection: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
             {spotlightPlatforms.map((plat) => (
               <a
                 key={plat.name}
@@ -136,7 +138,7 @@ export const ResourcesSection: React.FC = () => {
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search OverTheWire, PortSwigger, PicoCTF..."
+              placeholder="Search OverTheWire, pwn.college, LetsDefend..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors"
@@ -156,11 +158,9 @@ export const ResourcesSection: React.FC = () => {
                   <span className={`text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold border ${
                     item.category === 'Platform'
                       ? 'bg-cyan-950/80 text-cyan-300 border-cyan-800/60'
-                      : item.category === 'Toolkit'
-                      ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800/60'
-                      : 'bg-purple-950/80 text-purple-300 border-purple-800/60'
+                      : 'bg-emerald-950/80 text-emerald-300 border-emerald-800/60'
                   }`}>
-                    {item.category}
+                    {item.category === 'Platform' ? 'Practice Platform' : item.category}
                   </span>
                   <Bookmark className="w-4 h-4 text-slate-600 group-hover:text-cyan-400 transition-colors" />
                 </div>
@@ -194,7 +194,7 @@ export const ResourcesSection: React.FC = () => {
 
                 {/* Working Outbound Link Button */}
                 <a
-                  href={item.url || 'https://cybernetics-club.vercel.app'}
+                  href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/90 hover:bg-cyan-900 text-cyan-300 hover:text-white border border-cyan-800/70 hover:border-cyan-400 text-xs font-mono font-semibold transition-all shadow-[0_0_12px_rgba(6,182,212,0.15)] shrink-0 group cursor-pointer"

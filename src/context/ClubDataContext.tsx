@@ -221,17 +221,33 @@ export const ClubDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setDataLoading(false);
     });
 
-    // 2. Events collection
+    // 2. Events collection (ignore outdated 2026 seeded events and hydrate 2027 calendar cleanly)
     const unsubEvents = onSnapshot(collection(db, 'events'), (snapshot) => {
+      const defaultEventsMap = new Map(UPCOMING_EVENTS.map((e) => [e.id, e]));
       if (!snapshot.empty) {
-        const firestoreEvents: ClubEvent[] = snapshot.docs.map(d => ({
-          id: d.id,
-          ...(d.data() as Omit<ClubEvent, 'id'>)
-        }));
-        setEvents(firestoreEvents);
+        const activeFirestoreEvents: ClubEvent[] = [];
+        snapshot.docs.forEach((d) => {
+          const item = d.data() as Omit<ClubEvent, 'id'>;
+          const isLegacy2026 =
+            d.id.startsWith('evt-fl-') && !d.id.startsWith('evt-fl-2027-')
+              ? true
+              : typeof item.date === 'string' && item.date.includes('2026');
+
+          if (!isLegacy2026) {
+            activeFirestoreEvents.push({
+              id: d.id,
+              ...item,
+            });
+            defaultEventsMap.delete(d.id);
+          }
+        });
+        setEvents([...activeFirestoreEvents, ...Array.from(defaultEventsMap.values())]);
+      } else {
+        setEvents(UPCOMING_EVENTS);
       }
     }, (err) => {
       console.warn('Firestore events snapshot notice:', err.message);
+      setEvents(UPCOMING_EVENTS);
     });
 
     // 3. Resources collection
@@ -240,7 +256,15 @@ export const ClubDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (!snapshot.empty) {
         const firestoreList: ResourceItem[] = [];
         snapshot.docs.forEach(d => {
-          const item = d.data() as Omit<ResourceItem, 'id'>;
+          const item = d.data() as Omit<ResourceItem, 'id' | 'category'> & { category?: string };
+          const isLegacyRoadmap =
+            d.id === 'res-9' ||
+            item.category === 'Roadmap' ||
+            item.category === 'Cheatsheet' ||
+            item.title === 'Cyber Netics 4-Year Career & Cert Roadmap';
+          if (isLegacyRoadmap) {
+            return;
+          }
           const defaultItem = defaultMap.get(d.id);
           // If default item is a known practice platform and Firestore has club url, restore real platform url
           let effectiveUrl = cleanResourceUrl(item.url);
@@ -250,6 +274,7 @@ export const ClubDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           firestoreList.push({
             id: d.id,
             ...item,
+            category: item.category === 'Toolkit' ? 'Toolkit' : 'Platform',
             url: effectiveUrl
           });
           defaultMap.delete(d.id);

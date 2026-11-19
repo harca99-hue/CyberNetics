@@ -14,13 +14,22 @@ export const EventsSection: React.FC = () => {
   const [ticketNumber, setTicketNumber] = useState('');
 
   const categories: EventCategory[] = ['All', 'Conference', 'Workshop', 'CTF', 'Competition', 'Guest Speaker'];
-  const floridaCities = ['All Florida', 'Tampa', 'Orlando', 'Miami', 'Melbourne'];
+  const floridaCities = ['All Florida', 'Tampa Bay', 'Orlando', 'Miami / Ft. Lauderdale'];
 
   const filteredEvents = events.filter((e) => {
-    const matchesCategory = activeCategory === 'All' || e.category === activeCategory;
-    const matchesCity = 
-      activeCity === 'All Florida' || 
-      (e.city && e.city.toLowerCase().includes(activeCity.toLowerCase().split(' ')[0]));
+    const matchesCategory =
+      activeCategory === 'All' ||
+      e.category === activeCategory ||
+      Boolean(e.secondaryCategories && e.secondaryCategories.includes(activeCategory));
+
+    const cityLower = (e.city || '').toLowerCase();
+    const matchesCity =
+      activeCity === 'All Florida' ||
+      (activeCity === 'Tampa Bay' && (cityLower.includes('tampa') || cityLower.includes('st. pete'))) ||
+      (activeCity === 'Orlando' && cityLower.includes('orlando')) ||
+      (activeCity === 'Miami / Ft. Lauderdale' &&
+        (cityLower.includes('miami') || cityLower.includes('fort lauderdale')));
+
     return matchesCategory && matchesCity;
   });
 
@@ -42,13 +51,13 @@ export const EventsSection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 text-xs font-mono">
-            <span>// 04. FLORIDA CYBER CIRCUIT & FIELD OPS</span>
+            <span>// 04. FLORIDA CYBER CIRCUIT &amp; FIELD OPS · 2027</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Florida Cybersecurity Events, Conferences &amp; CTFs
+            2027 Florida Cybersecurity Events, Conferences &amp; CTFs
           </h2>
           <p className="text-slate-400 text-base leading-relaxed">
-            Connect with Florida&apos;s premier infosec hubs: CyberFlorida Tampa, BSides Orlando, SunshineCTF, Miami Zero Trust Summit, and Space Coast aerospace cyber labs. Join our student delegations and collegiate workshops.
+            Connect with Florida&apos;s confirmed 2027 infosec hubs: BSides St. Pete, Florida Cyber Summit in Tampa, SANS 2027 Orlando, BSides South Florida, and the SANS ICS Security Summit. Join our student delegations and technical training tracks.
           </p>
         </div>
 
@@ -62,11 +71,11 @@ export const EventsSection: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-white">Florida Cyber Ecosystem Hub</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                  Statewide Calendar
+                  2027 Statewide Calendar
                 </span>
               </div>
               <p className="text-xs text-slate-300 font-mono mt-0.5">
-                Central FL • Tampa Bay • South FL • Space Coast • Tallahassee
+                St. Petersburg / Tampa Bay • Central FL (Orlando) • Fort Lauderdale / Miami Metro
               </p>
             </div>
           </div>
@@ -122,21 +131,21 @@ export const EventsSection: React.FC = () => {
 
                 <div className="space-y-4">
                   {/* Date & Florida City Badge */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 font-mono text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
                       <span className="px-2.5 py-1 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-bold">
                         {event.date}
                       </span>
                       <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px]">
-                        {event.category}
+                        {event.eventTypeLabel || event.category}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       {event.city && (
                         <span className="px-2 py-0.5 rounded bg-blue-950/70 text-blue-300 border border-blue-800/60 text-[10px] font-mono font-semibold flex items-center gap-1">
                           <span>📍</span>
-                          <span>{event.city}, FL</span>
+                          <span>{event.city.endsWith(', FL') ? event.city : `${event.city}, FL`}</span>
                         </span>
                       )}
                       <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${
@@ -220,10 +229,19 @@ export const EventsSection: React.FC = () => {
         )}
 
         {/* Regular Meeting Callout */}
-        <div className="mt-12 text-center p-6 rounded-2xl bg-slate-900/60 border border-slate-800 font-mono text-xs text-slate-400">
+        <div className="mt-12 text-center p-6 rounded-2xl bg-slate-900/60 border border-slate-800 font-mono text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-3">
           <p>
             Can&apos;t make a specific workshop? Cyber Netics hosts general meetings <span className="text-white font-semibold">{clubSettings.regularMeeting}</span> with simultaneous Discord live streaming.
           </p>
+          <a
+            href={clubSettings.discordInvite?.startsWith('http://') || clubSettings.discordInvite?.startsWith('https://') ? clubSettings.discordInvite : `https://${clubSettings.discordInvite || 'discord.gg/cybernetics-college'}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 border border-cyan-700/50 font-semibold shrink-0 transition-colors"
+          >
+            <span>Join Official Discord Server</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
       </div>
 

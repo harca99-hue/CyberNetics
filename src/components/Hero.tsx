@@ -1,8 +1,6 @@
 import React from 'react';
-import { Terminal, ArrowRight, Zap, Target, Award, Users, ChevronRight, Lock, QrCode, Gamepad2, Radio, Sparkles } from 'lucide-react';
+import { ArrowRight, Zap, Target, Award, Users, ChevronRight, Lock, QrCode, Radio, ExternalLink } from 'lucide-react';
 import { useClubData } from '../context/ClubDataContext';
-import { useSeasonalTheme } from '../context/ThemeContext';
-import { useLiveTelemetry } from '../context/TelemetryContext';
 
 interface HeroProps {
   onOpenJoin: () => void;
@@ -18,8 +16,6 @@ export const Hero: React.FC<HeroProps> = ({
   onOpenShare 
 }) => {
   const { clubSettings } = useClubData();
-  const { themeConfig, isAutoMode } = useSeasonalTheme();
-  const { standing } = useLiveTelemetry();
 
 
   const scrollToSection = (id: string) => {
@@ -31,34 +27,17 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     <section id="hero" className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden cyber-grid">
-      {/* Radial ambient glow adapting to active theme */}
-      <div 
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] blur-[130px] pointer-events-none -z-10 transition-colors duration-700" 
+      {/* Radial ambient glow */}
+      <div
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] blur-[130px] pointer-events-none -z-10"
         style={{
-          background: `radial-gradient(circle, ${themeConfig.accentGlow} 0%, rgba(59, 130, 246, 0.08) 50%, transparent 80%)`,
+          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 80%)',
         }}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top telemetry & seasonal theme pills */}
+        {/* Top status pills */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          {/* Active Seasonal / Holiday Protocol Pill */}
-          <div 
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono border transition-all shadow-sm"
-            style={{
-              backgroundColor: themeConfig.badgeBg,
-              borderColor: themeConfig.borderAccent,
-              color: themeConfig.badgeText,
-              boxShadow: `0 0 15px -3px ${themeConfig.accentGlow}`,
-            }}
-          >
-            <span className="text-sm">{themeConfig.icon}</span>
-            <span className="font-bold">{themeConfig.bannerText}</span>
-            <span className="opacity-60 hidden md:inline">•</span>
-            <span className="opacity-80 hidden md:inline text-[11px] font-sans">
-              {themeConfig.tagline}
-            </span>
-          </div>
 
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -135,11 +114,22 @@ export const Hero: React.FC<HeroProps> = ({
               </button>
             </div>
 
-            {/* Meeting location badge */}
-            <div className="pt-4 border-t border-slate-800/80 flex items-center gap-3 text-xs text-slate-400 font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>General Meeting:</span>
-              <span className="text-slate-200 font-medium">{clubSettings.regularMeeting}</span>
+            {/* Meeting location badge & Discord link */}
+            <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 font-mono">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+                <span>General Meeting:</span>
+                <span className="text-slate-200 font-medium">{clubSettings.regularMeeting}</span>
+              </div>
+              <a
+                href={clubSettings.discordInvite?.startsWith('http://') || clubSettings.discordInvite?.startsWith('https://') ? clubSettings.discordInvite : `https://${clubSettings.discordInvite || 'discord.gg/cybernetics-college'}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-cyan-300 hover:text-cyan-200 font-semibold hover:underline shrink-0"
+              >
+                <span>Join Official Discord Server</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
           </div>
 
@@ -166,9 +156,9 @@ export const Hero: React.FC<HeroProps> = ({
                   {'> '}Member Candidate // Track: Offensive & Defensive Cyber
                 </div>
 
-                <div className="text-cyan-400 pt-1">$ ctf-rank --live-telemetry</div>
+                <div className="text-cyan-400 pt-1">$ ctf-rank --ctftime</div>
                 <div className="text-emerald-400">
-                  {'> '}[+] CTFtime Standing: {standing.globalRank} ({standing.ratingPoints} pts · {standing.source === 'live-api' ? 'LIVE' : 'CACHED'})
+                  {'> '}[+] CTFtime Standing: {clubSettings.ctfGlobalRank || '#42 Collegiate'} (148.42 pts)
                 </div>
 
                 <div className="text-slate-400">
@@ -210,20 +200,15 @@ export const Hero: React.FC<HeroProps> = ({
           </div>
 
           <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/30 transition-all">
-            <div className="flex items-center justify-between gap-2 text-emerald-400 text-xs font-mono mb-1">
-              <span className="flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                <span>CTFTIME STANDING</span>
-              </span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/70 border border-emerald-700/40 text-emerald-300">
-                {standing.source === 'live-api' ? 'LIVE' : 'CACHE'}
-              </span>
+            <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono mb-1">
+              <Award className="w-4 h-4" />
+              <span>CTFTIME STANDING</span>
             </div>
             <div className="text-3xl font-extrabold text-white font-mono">
-              {standing.globalRank.replace(' Collegiate', '')}
+              {(clubSettings.ctfGlobalRank || '#42 Collegiate').replace(' Collegiate', '')}
             </div>
             <div className="text-xs text-slate-400 mt-1">
-              Collegiate Global Rank · {standing.ratingPoints} pts
+              Collegiate Global Rank · 148.42 pts
             </div>
           </div>
 

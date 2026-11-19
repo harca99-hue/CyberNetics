@@ -580,7 +580,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                         setEditingEvent({
                           title: '',
                           category: 'Workshop',
-                          date: 'NOV 15, 2026',
+                          date: 'Feb 5–6, 2027',
                           time: '5:00 PM - 7:00 PM',
                           location: 'Building 13',
                           room: 'Room 105',
@@ -680,6 +680,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                 onChange={(e) => setEditingEvent({ ...editingEvent, category: e.target.value as any })}
                                 className="w-full px-3 py-2 bg-[#070b14] border border-slate-700 rounded text-sm text-white"
                               >
+                                <option value="Conference">Conference</option>
                                 <option value="Workshop">Workshop</option>
                                 <option value="CTF">CTF</option>
                                 <option value="Competition">Competition</option>
@@ -708,7 +709,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                               <label className="block uppercase font-mono text-slate-400 mb-1">Date</label>
                               <input
                                 type="text"
-                                placeholder="NOV 15, 2026"
+                                placeholder="Feb 5–6, 2027"
                                 value={editingEvent.date || ''}
                                 onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
                                 className="w-full px-3 py-2 bg-[#070b14] border border-slate-700 rounded text-sm text-white"
@@ -811,8 +812,8 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                     <div>
-                      <h4 className="text-base font-bold text-white">Curated Tools & Guides</h4>
-                      <p className="text-xs text-slate-400 font-mono">Manage recommended platforms, cheatsheets, and roadmaps</p>
+                      <h4 className="text-base font-bold text-white">Curated Practice Platforms &amp; Toolkits</h4>
+                      <p className="text-xs text-slate-400 font-mono">Manage recommended external practice platforms and toolkits</p>
                     </div>
                     <button
                       onClick={() => {
@@ -917,8 +918,6 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                               >
                                 <option value="Platform">Platform</option>
                                 <option value="Toolkit">Toolkit</option>
-                                <option value="Roadmap">Roadmap</option>
-                                <option value="Cheatsheet">Cheatsheet</option>
                               </select>
                             </div>
                             <div>

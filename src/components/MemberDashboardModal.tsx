@@ -25,11 +25,13 @@ import {
   Flame,
   Crown,
   Terminal,
+  Mail,
 } from 'lucide-react';
 import {
   useMember,
   RANK_TIERS,
   KNOWN_CTF_FLAGS,
+  ALL_TRACK_IDS,
 } from '../context/MemberContext';
 import { TrackId, WarRoomModuleId } from '../types';
 
@@ -44,15 +46,19 @@ const TRACK_LABELS: { id: TrackId; label: string }[] = [
 const WAR_ROOM_CATALOG: {
   id: WarRoomModuleId;
   title: string;
+  tierLabel: string;
   xp: number;
   mitre: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
-  { id: 'siem-forensics', title: 'SIEM Log Forensics', xp: 250, mitre: 'T1190 / T1059', icon: Activity },
-  { id: 'web-exploit-chain', title: 'Web Exploit Chain', xp: 250, mitre: 'T1190 / T1078', icon: FileCode },
-  { id: 'memory-malware', title: 'Memory & C2 Triage', xp: 250, mitre: 'T1055 / T1071', icon: Server },
-  { id: 'smart-contract', title: 'Smart Contract Audit', xp: 200, mitre: 'CWE-841 / SWC-107', icon: Database },
-  { id: 'binary-rop', title: 'Binary Analysis & ROP', xp: 300, mitre: 'T1203 / CWE-121', icon: Binary },
+  { id: 'python-appsec-patcher', title: 'Python Secure Code Patcher', tierLabel: 'Tier 1 · Cadet', xp: 150, mitre: 'CWE-78 / CWE-89', icon: FileCode },
+  { id: 'linux-cli-defense', title: 'Linux & CLI Defense Lab', tierLabel: 'Tier 1 · Cadet', xp: 150, mitre: 'CWE-732 / T1053', icon: Terminal },
+  { id: 'packet-phishing-triage', title: 'Packet & Phishing Triage', tierLabel: 'Tier 1 · Cadet', xp: 150, mitre: 'T1566 / T1071', icon: Mail },
+  { id: 'siem-forensics', title: 'SIEM Log Forensics', tierLabel: 'Tier 2 · SOC Analyst', xp: 250, mitre: 'T1190 / T1059', icon: Activity },
+  { id: 'memory-malware', title: 'Memory & C2 Triage', tierLabel: 'Tier 2 · SOC Analyst', xp: 250, mitre: 'T1055 / T1071', icon: Server },
+  { id: 'smart-contract', title: 'Smart Contract Audit', tierLabel: 'Tier 2 · SOC Analyst', xp: 200, mitre: 'CWE-841 / SWC-107', icon: Database },
+  { id: 'web-exploit-chain', title: 'Web Exploit Chain', tierLabel: 'Tier 3 · Principal', xp: 250, mitre: 'T1190 / T1078', icon: FileCode },
+  { id: 'binary-rop', title: 'Binary Analysis & ROP', tierLabel: 'Tier 3 · Principal', xp: 300, mitre: 'T1203 / CWE-121', icon: Binary },
 ];
 
 export const MemberDashboardModal: React.FC = () => {
@@ -69,6 +75,7 @@ export const MemberDashboardModal: React.FC = () => {
     syncStatus,
     effectiveXp,
     effectiveCompletedModules,
+    effectiveCompletedTryouts,
     effectiveRank,
     signInWithGoogleAndRegister,
     registerOrUpdateProfile,
@@ -107,7 +114,9 @@ export const MemberDashboardModal: React.FC = () => {
   if (!isDashboardOpen) return null;
 
   const isFullySignedIn = Boolean(firebaseUser && memberProfile);
-  const solvedModulesCount = Object.values(effectiveCompletedModules).filter(Boolean).length;
+  const solvedModulesCount = WAR_ROOM_CATALOG.filter((m) => Boolean(effectiveCompletedModules[m.id])).length;
+  const totalModulesCount = WAR_ROOM_CATALOG.length;
+  const solvedTryoutsCount = ALL_TRACK_IDS.filter((tid) => Boolean(effectiveCompletedTryouts[tid])).length;
 
   const handleGoogleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,7 +304,7 @@ export const MemberDashboardModal: React.FC = () => {
                   <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 flex items-center gap-3 text-xs font-mono text-emerald-200">
                     <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>
-                      Detected <strong>{effectiveXp} XP</strong> ({solvedModulesCount}/5 SOC labs solved) from your current session! Sign in now to save it permanently to Cloud Firestore.
+                      Detected <strong>{effectiveXp} XP</strong> ({solvedModulesCount}/{totalModulesCount} labs solved) from your current session! Sign in now to save it permanently to Cloud Firestore.
                     </span>
                   </div>
                 )}
@@ -508,9 +517,15 @@ export const MemberDashboardModal: React.FC = () => {
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-mono text-slate-400">SOC Simulations</span>
+                          <span className="text-xs font-mono text-slate-400">Labs &amp; SOC Modules</span>
                           <span className="text-lg font-black font-mono text-emerald-400">
-                            {solvedModulesCount} / 5
+                            {solvedModulesCount} / {totalModulesCount}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono text-slate-400">Track Tryouts (+100 XP)</span>
+                          <span className="text-lg font-black font-mono text-purple-300">
+                            {solvedTryoutsCount} / {ALL_TRACK_IDS.length}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
@@ -541,7 +556,7 @@ export const MemberDashboardModal: React.FC = () => {
                       {solvedModulesCount > 0 && (
                         <button
                           onClick={async () => {
-                            if (window.confirm('Reset all 5 SOC simulation completion states in Cloud Firestore?')) {
+                            if (window.confirm(`Reset all ${totalModulesCount} lab & SOC simulation completion states in Cloud Firestore?`)) {
                               await resetWarRoomProgress();
                             }
                           }}
@@ -582,8 +597,10 @@ export const MemberDashboardModal: React.FC = () => {
                                   </span>
                                 )}
                               </div>
-                              <div className="text-sm font-bold text-white font-mono">{mod.title}</div>
-                              <div className="text-[11px] font-mono text-slate-500 mt-0.5">MITRE: {mod.mitre}</div>
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-sm font-bold text-white font-mono">{mod.title}</span>
+                              </div>
+                              <div className="text-[11px] font-mono text-cyan-400/90 mt-0.5">{mod.tierLabel} · {mod.mitre}</div>
                               {modState?.stageNotes && (
                                 <div className="mt-2 text-[11px] font-mono text-cyan-300/90 bg-slate-950/70 px-2 py-1 rounded border border-slate-800 truncate">
                                   {modState.stageNotes}
@@ -881,7 +898,7 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ entries, loading, c
                     {row.callsign && <div className="text-[10px] text-slate-500">@{row.callsign}</div>}
                   </td>
                   <td className="py-2.5 px-3.5 text-cyan-300">{row.rank}</td>
-                  <td className="py-2.5 px-3.5 text-emerald-400 hidden sm:table-cell">{row.solvedCount}/5</td>
+                  <td className="py-2.5 px-3.5 text-emerald-400 hidden sm:table-cell">{row.solvedCount}/{WAR_ROOM_CATALOG.length}</td>
                   <td className="py-2.5 px-3.5 text-amber-300 hidden sm:table-cell">{row.flagsCount}</td>
                   <td className="py-2.5 px-3.5 text-right font-bold text-amber-300">{row.xp} XP</td>
                 </tr>

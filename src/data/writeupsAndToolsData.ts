@@ -485,7 +485,7 @@ export const OPEN_SOURCE_TOOLS: OpenSourceTool[] = [
     license: 'Apache-2.0',
     officialUrl: 'https://ghidra-sre.org',
     githubUrl: 'https://github.com/NationalSecurityAgency/ghidra',
-    installCommand: 'wget https://github.com/NationalSecurityAgency/ghidra/releases/latest -O ghidra.zip && unzip ghidra.zip',
+    installCommand: 'sudo apt update && sudo apt install -y ghidra   # Or download the latest release ZIP from GitHub Releases',
     tags: ['Decompiler', 'NSA', 'Disassembly', 'Binary SRE', 'CTF Pwn']
   },
   {
